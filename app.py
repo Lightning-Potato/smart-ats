@@ -1,4 +1,5 @@
 import streamlit as st
+from utility import extract_text_from_pdf
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -38,7 +39,18 @@ with st.form("ats_form"):
 
 if submitted:
     if job_description and resume_file:
-        st.success("Inputs received! We're ready to start processing.")
+        st.success("Inputs received! Processing your resume...")
+
+        resume_text = extract_text_from_pdf(resume_file)
+
+        if resume_text:
+            st.header("Extracted Resume Content (For Verification):")
+            st.write(resume_text)
+        else:
+            st.error(
+                "There was an error reading the PDF file. "
+                "Please ensure it's a valid, text-based PDF and try again."
+            )
     else:
         st.warning(
             "Please make sure you have provided both "
