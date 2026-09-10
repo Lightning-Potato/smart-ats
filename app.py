@@ -1,5 +1,6 @@
 import streamlit as st
 from utility import extract_text_from_pdf
+from llm_client import get_llm_response
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -39,20 +40,35 @@ with st.form("ats_form"):
 
 if submitted:
     if job_description and resume_file:
-        st.success("Inputs received! Processing your resume...")
-
         resume_text = extract_text_from_pdf(resume_file)
 
         if resume_text:
-            st.header("Extracted Resume Content (For Verification):")
-            st.write(resume_text)
+            with st.spinner("Our AI is analyzing your inputs..."):
+                input_prompt = f"""
+                You are an experienced Applicant Tracking System (ATS) analyst.
+
+                Your task is to provide a first impression of the alignment
+                between a resume and a job description.
+
+                Job Description:
+                {job_description}
+
+                Resume:
+                {resume_text}
+
+                Based on the above, provide a one-sentence summary of the
+                resume's relevance to the job.
+                """
+
+                response = get_llm_response(input_prompt)
+
+            st.subheader("AI's First Impression:")
+            st.write(response)
+
         else:
-            st.error(
-                "There was an error reading the PDF file. "
-                "Please ensure it's a valid, text-based PDF and try again."
-            )
+            st.error("There was an error reading the PDF file.")
+
     else:
         st.warning(
-            "Please make sure you have provided both "
-            "a job description and a resume file."
+            "Please provide both a job description and a resume."
         )
