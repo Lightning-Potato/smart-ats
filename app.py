@@ -9,13 +9,38 @@ st.set_page_config(
 st.title("Smart Applicant Tracking System 🤖")
 
 st.write(
-    "Welcome to the Smart ATS! "
-    "This tool helps you optimize your resume for any job description."
+    "Optimize your resume by analyzing it against "
+    "a job description with the power of AI."
 )
 
-st.header("What We Will Build Next")
+st.divider()
 
-st.write(
-    "Tomorrow, we will create the input forms that will allow you "
-    "to enter a job description and upload your resume."
-)
+with st.form("ats_form"):
+    st.header("1. Paste the Job Description")
+
+    job_description = st.text_area(
+        "Job Description",
+        height=250,
+        placeholder="Paste the job description text here..."
+    )
+
+    st.header("2. Upload Your Resume")
+
+    resume_file = st.file_uploader(
+        "Upload your resume (PDF only)",
+        type="pdf"
+    )
+
+    submitted = st.form_submit_button(
+        "Analyze My Resume",
+        type="primary"
+    )
+
+if submitted:
+    if job_description and resume_file:
+        st.success("Inputs received! We're ready to start processing.")
+    else:
+        st.warning(
+            "Please make sure you have provided both "
+            "a job description and a resume file."
+        )
