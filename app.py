@@ -43,27 +43,45 @@ if submitted:
         resume_text = extract_text_from_pdf(resume_file)
 
         if resume_text:
-            with st.spinner("Our AI is analyzing your inputs..."):
+            with st.spinner(
+                "Our AI is analyzing your inputs... This may take a moment."
+            ):
                 input_prompt = f"""
-                You are an experienced Applicant Tracking System (ATS) analyst.
+                **Role:** You are a highly skilled and experienced Applicant
+                Tracking System (ATS) analyst with deep expertise in the tech
+                industry and Human Resources.
 
-                Your task is to provide a first impression of the alignment
-                between a resume and a job description.
+                **Task:** Your goal is to analyze the provided resume against
+                the given job description and determine their compatibility.
 
-                Job Description:
+                **Instructions:**
+                1. First, carefully review the entire job description to
+                understand the key requirements, skills, and qualifications.
+
+                2. Next, thoroughly review the entire resume to identify the
+                candidate's skills, experience, and qualifications.
+
+                3. Provide a short, one-paragraph analysis of how well the
+                resume aligns with the job description. Do not make up any
+                information. Base your analysis strictly on the text provided.
+
+                **Documents for Analysis:**
+
+                **Job Description:**
+                ---
                 {job_description}
+                ---
 
-                Resume:
+                **Resume:**
+                ---
                 {resume_text}
-
-                Based on the above, provide a one-sentence summary of the
-                resume's relevance to the job.
+                ---
                 """
 
                 response = get_llm_response(input_prompt)
 
-            st.subheader("AI's First Impression:")
-            st.write(response)
+            st.subheader("AI Analysis:")
+            st.markdown(response)
 
         else:
             st.error("There was an error reading the PDF file.")
