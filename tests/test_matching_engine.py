@@ -75,3 +75,48 @@ def test_match_skills_with_empty_resume():
         "Python",
         "AWS"
     ]
+
+def test_normalize_known_skill_aliases():
+    assert normalize_skill("AWS") == "aws"
+
+    assert (
+        normalize_skill("Amazon Web Services")
+        == "aws"
+    )
+
+    assert normalize_skill("Postgres") == "postgresql"
+
+    assert normalize_skill("PostgreSQL") == "postgresql"
+
+    assert normalize_skill("JS") == "javascript"
+
+    assert normalize_skill("JavaScript") == "javascript"
+
+def test_match_skills_with_aliases():
+    job_skills = [
+        "Amazon Web Services",
+        "PostgreSQL",
+        "JavaScript"
+    ]
+
+    resume_skills = [
+        "AWS",
+        "Postgres",
+        "JS"
+    ]
+
+    result = match_skills(
+        job_skills,
+        resume_skills
+    )
+
+    assert result["matched_skills"] == [
+        "Amazon Web Services",
+        "PostgreSQL",
+        "JavaScript"
+    ]
+
+    assert result["missing_skills"] == []
+
+def test_normalize_unknown_skill():
+    assert normalize_skill("PyTorch") == "pytorch"

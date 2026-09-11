@@ -1,0 +1,23 @@
+SKILL_ALIASES = {
+    "aws": "aws",
+    "amazon web services": "aws",
+
+    "postgres": "postgresql",
+    "postgresql": "postgresql",
+
+    "js": "javascript",
+    "javascript": "javascript",
+
+    "ml": "machine learning",
+    "machine learning": "machine learning",
+
+    "ai": "artificial intelligence",
+    "artificial intelligence": "artificial intelligence",
+
+    "ci": "continuous integration",
+    "continuous integration": "continuous integration",
+
+    "cd": "continuous delivery",
+    "continuous delivery": "continuous delivery",
+    "continuous deployment": "continuous delivery",
+}

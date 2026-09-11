@@ -1,9 +1,16 @@
+from smart_ats.skill_aliases import SKILL_ALIASES
+
 def normalize_skill(skill):
     """
-    Normalizes a skill name for consistent comparison.
+    Normalizes a skill name and resolves known aliases.
     """
 
-    return skill.strip().lower()
+    normalized = skill.strip().lower()
+
+    return SKILL_ALIASES.get(
+        normalized,
+        normalized
+    )
 
 def match_skills(job_skills, resume_skills):
     """
