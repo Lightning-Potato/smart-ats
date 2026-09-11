@@ -3,6 +3,7 @@ from utility import extract_text_from_pdf
 from llm_client import get_llm_response
 from prompts import build_structured_analysis_prompt
 from analysis_parser import parse_analysis_response
+from ui_components import display_analysis_dashboard
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -58,13 +59,7 @@ if submitted:
                 try:
                     analysis = parse_analysis_response(response)
 
-                    st.subheader("Structured ATS Analysis")
-
-                    st.write("Overall Score:", analysis["overall_score"])
-                    st.write("Summary:", analysis["summary"])
-
-                    st.write("Matched Skills:", analysis["matched_skills"])
-                    st.write("Missing Skills:", analysis["missing_skills"])
+                    display_analysis_dashboard(analysis)
 
                 except ValueError as e:
                     st.error(str(e))
