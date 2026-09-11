@@ -1,7 +1,8 @@
 import streamlit as st
 from utility import extract_text_from_pdf
 from llm_client import get_llm_response
-from prompts import build_initial_analysis_prompt
+from prompts import build_structured_analysis_prompt
+from analysis_parser import parse_analysis_response
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -47,15 +48,26 @@ if submitted:
             with st.spinner(
                 "Our AI is analyzing your inputs... This may take a moment."
             ):
-                input_prompt = build_initial_analysis_prompt(
+                input_prompt = build_structured_analysis_prompt(
                     job_description,
                     resume_text
                 )
 
                 response = get_llm_response(input_prompt)
 
-            st.subheader("AI Analysis:")
-            st.markdown(response)
+                try:
+                    analysis = parse_analysis_response(response)
+
+                    st.subheader("Structured ATS Analysis")
+
+                    st.write("Overall Score:", analysis["overall_score"])
+                    st.write("Summary:", analysis["summary"])
+
+                    st.write("Matched Skills:", analysis["matched_skills"])
+                    st.write("Missing Skills:", analysis["missing_skills"])
+
+                except ValueError as e:
+                    st.error(str(e))
 
         else:
             st.error("There was an error reading the PDF file.")
