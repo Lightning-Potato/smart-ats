@@ -185,9 +185,9 @@ a proprietary or industry-standard ATS algorithm.
 
 ## Development Status
 
-Current release: **v0.2.0**
+Current release: **v0.3.0**
 
-The project is currently being prepared for the **v0.3.0** release,
-which introduces deterministic skill and experience matching,
-explainable weighted scoring, and a hybrid architecture that separates
-deterministic analysis from LLM-generated qualitative insights.
+Version 0.3.0 introduces deterministic skill and experience matching,
+explainable weighted scoring, automated CI validation, and a hybrid
+architecture that separates deterministic analysis from LLM-generated
+qualitative insights.
