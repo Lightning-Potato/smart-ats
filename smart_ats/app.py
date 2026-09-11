@@ -7,6 +7,10 @@ from smart_ats.analysis_parser import parse_analysis_response
 from smart_ats.ui_components import display_analysis_dashboard
 from smart_ats.skill_analysis import analyze_skill_match
 from smart_ats.experience_analysis import analyze_experience_match
+from smart_ats.scoring import calculate_overall_ats_score
+
+
+
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -59,6 +63,11 @@ if submitted:
                 resume_text
             )
 
+            overall_ats_score = calculate_overall_ats_score(
+                skill_analysis["skill_match_score"],
+                experience_analysis["experience_match_score"]
+            )
+
             with st.spinner(
                 "Our AI is analyzing your inputs... This may take a moment."
             ):
@@ -75,7 +84,8 @@ if submitted:
                 display_analysis_dashboard(
                     analysis,
                     skill_analysis,
-                    experience_analysis
+                    experience_analysis,
+                    overall_ats_score
                 )
 
             except ValueError as e:
