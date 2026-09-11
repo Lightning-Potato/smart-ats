@@ -55,3 +55,15 @@ def test_extract_multiple_skills():
     }
 
     assert expected_skills.issubset(set(result))
+
+def test_extract_skill_aliases():
+    text = """
+    Experience with Amazon Web Services,
+    Postgres and JS is required.
+    """
+
+    result = extract_skills(text)
+
+    assert "aws" in result
+    assert "postgresql" in result
+    assert "javascript" in result
