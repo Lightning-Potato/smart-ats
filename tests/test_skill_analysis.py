@@ -28,6 +28,8 @@ def test_analyze_skill_match():
 
     assert "aws" in result["missing_skills"]
 
+    assert result["skill_match_score"] == 75.0
+
 def test_analyze_skill_match_with_full_match():
     job_description = """
     Required skills: Python, Docker and AWS.
@@ -49,6 +51,8 @@ def test_analyze_skill_match_with_full_match():
         "docker",
         "aws"
     }
+
+    assert result["skill_match_score"] == 100.0
 
 def test_analyze_skill_match_with_no_match():
     job_description = """
@@ -72,6 +76,8 @@ def test_analyze_skill_match_with_no_match():
         "aws"
     }
 
+    assert result["skill_match_score"] == 0.0
+
 def test_analyze_skill_match_with_aliases():
     job_description = """
     Experience with Amazon Web Services and PostgreSQL
@@ -93,3 +99,5 @@ def test_analyze_skill_match_with_aliases():
     }
 
     assert result["missing_skills"] == []
+
+    assert result["skill_match_score"] == 100.0

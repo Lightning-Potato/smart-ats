@@ -2,6 +2,11 @@ from smart_ats.matching_engine import (
     match_skills,
     normalize_skill,
 )
+from smart_ats.matching_engine import (
+    calculate_skill_match_score,
+    match_skills,
+    normalize_skill,
+)
 
 
 def test_normalize_skill():
@@ -120,3 +125,68 @@ def test_match_skills_with_aliases():
 
 def test_normalize_unknown_skill():
     assert normalize_skill("PyTorch") == "pytorch"
+
+def test_calculate_skill_match_score():
+    matched_skills = [
+        "python",
+        "docker",
+        "postgresql"
+    ]
+
+    required_skills = [
+        "python",
+        "docker",
+        "aws",
+        "postgresql"
+    ]
+
+    score = calculate_skill_match_score(
+        matched_skills,
+        required_skills
+    )
+
+    assert score == 75.0
+
+def test_calculate_skill_match_score_full_match():
+    matched_skills = [
+        "python",
+        "docker",
+        "aws"
+    ]
+
+    required_skills = [
+        "python",
+        "docker",
+        "aws"
+    ]
+
+    score = calculate_skill_match_score(
+        matched_skills,
+        required_skills
+    )
+
+    assert score == 100.0
+
+def test_calculate_skill_match_score_no_match():
+    score = calculate_skill_match_score(
+        [],
+        ["python", "docker", "aws"]
+    )
+
+    assert score == 0.0
+
+def test_calculate_skill_match_score_empty_requirements():
+    score = calculate_skill_match_score(
+        [],
+        []
+    )
+
+    assert score == 0.0
+
+def test_calculate_skill_match_score_rounds_result():
+    score = calculate_skill_match_score(
+        ["python", "docker"],
+        ["python", "docker", "aws"]
+    )
+
+    assert score == 66.67
