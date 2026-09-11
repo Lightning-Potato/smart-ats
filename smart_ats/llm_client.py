@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from mock_responses import get_mock_analysis_response
+from smart_ats.mock_responses import get_mock_analysis_response
 
 load_dotenv()
 

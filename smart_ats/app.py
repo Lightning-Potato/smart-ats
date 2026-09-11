@@ -1,9 +1,10 @@
 import streamlit as st
-from utility import extract_text_from_pdf
-from llm_client import get_llm_response
-from prompts import build_structured_analysis_prompt
-from analysis_parser import parse_analysis_response
-from ui_components import display_analysis_dashboard
+
+from smart_ats.utility import extract_text_from_pdf
+from smart_ats.llm_client import get_llm_response
+from smart_ats.prompts import build_structured_analysis_prompt
+from smart_ats.analysis_parser import parse_analysis_response
+from smart_ats.ui_components import display_analysis_dashboard
 
 st.set_page_config(
     page_title="Smart ATS",

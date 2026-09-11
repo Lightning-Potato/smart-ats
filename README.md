@@ -29,15 +29,24 @@ Smart ATS is an AI-powered Applicant Tracking System that analyzes a resume agai
 
 ```text
 smart-ats/
-├── app.py
-├── analysis_parser.py
-├── llm_client.py
-├── mock_responses.py
-├── prompts.py
-├── ui_components.py
-├── utility.py
-├── requirements.txt
+├── smart_ats/
+│   ├── __init__.py
+│   ├── app.py
+│   ├── analysis_parser.py
+│   ├── llm_client.py
+│   ├── mock_responses.py
+│   ├── prompts.py
+│   ├── ui_components.py
+│   └── utility.py
+│
+├── tests/
+│   ├── test_analysis_parser.py
+│   └── test_mock_responses.py
+│
 ├── .env.example
+├── .gitignore
+├── pytest.ini
+├── requirements.txt
 └── README.md
 ```
 
@@ -89,11 +98,11 @@ Never commit your real API key to version control.
 ### 5. Run the Application
 
 ```bash
-streamlit run app.py
+python -m streamlit run smart_ats/app.py
 ```
 
 ## Development Status
 
 Current release: **v0.1.0**
 
-The project is under active development. The current development branch is working toward **v0.2.0**, which introduces structured ATS analysis, a dedicated analysis dashboard, mock LLM support, and improved project reproducibility.
+The project is currently being prepared for the **v0.2.0** release.

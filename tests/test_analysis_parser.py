@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from analysis_parser import parse_analysis_response
+from smart_ats.analysis_parser import parse_analysis_response
 
 
 def test_parse_valid_analysis_response():

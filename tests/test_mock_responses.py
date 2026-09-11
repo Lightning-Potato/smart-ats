@@ -1,5 +1,5 @@
-from analysis_parser import parse_analysis_response
-from mock_responses import get_mock_analysis_response
+from smart_ats.analysis_parser import parse_analysis_response
+from smart_ats.mock_responses import get_mock_analysis_response
 
 
 def test_mock_response_is_valid():
