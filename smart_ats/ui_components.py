@@ -6,13 +6,30 @@ from smart_ats.skill_metadata import get_skill_display_name
 def display_analysis_dashboard(
     analysis,
     skill_analysis,
-    experience_analysis
+    experience_analysis,
+    overall_ats_score
 ):
     """
     Displays the structured ATS analysis in the Streamlit interface.
     """
 
     st.header("ATS Analysis")
+
+    if overall_ats_score is None:
+        st.metric(
+            label="Overall ATS Score",
+            value="N/A"
+        )
+    else:
+        st.metric(
+            label="Overall ATS Score",
+            value=f"{overall_ats_score}%"
+        )
+
+    st.caption(
+        "Overall score is calculated from deterministic "
+        "skill and experience matching."
+    )
 
     # -------------------------
     # Match Scores
