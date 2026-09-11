@@ -9,16 +9,14 @@ def test_mock_response_is_valid():
 
     assert isinstance(analysis, dict)
 
+
 def test_mock_response_contains_required_fields():
     response = get_mock_analysis_response()
 
     analysis = parse_analysis_response(response)
 
     required_fields = [
-        "overall_score",
         "summary",
-        "matched_skills",
-        "missing_skills",
         "strengths",
         "gaps",
         "recommendations"
@@ -27,12 +25,17 @@ def test_mock_response_contains_required_fields():
     for field in required_fields:
         assert field in analysis
 
-def test_mock_score_is_valid():
+
+def test_mock_response_excludes_deterministic_fields():
     response = get_mock_analysis_response()
 
     analysis = parse_analysis_response(response)
 
-    score = analysis["overall_score"]
+    deterministic_fields = [
+        "overall_score",
+        "matched_skills",
+        "missing_skills"
+    ]
 
-    assert isinstance(score, int)
-    assert 0 <= score <= 100
+    for field in deterministic_fields:
+        assert field not in analysis
