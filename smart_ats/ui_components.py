@@ -1,21 +1,34 @@
 import streamlit as st
 
 
-def display_analysis_dashboard(analysis):
+def display_analysis_dashboard(
+    analysis,
+    skill_analysis
+):
     """
     Displays the structured ATS analysis in the Streamlit interface.
     """
 
     st.header("ATS Analysis")
 
-    score = analysis["overall_score"]
+    ai_score = analysis["overall_score"]
+    skill_score = skill_analysis["skill_match_score"]
 
-    st.metric(
-        label="Overall Match Score",
-        value=f"{score}%"
-    )
+    col1, col2 = st.columns(2)
 
-    st.progress(score / 100)
+    with col1:
+        st.metric(
+            label="Skill Match Score",
+            value=f"{skill_score}%"
+        )
+
+    with col2:
+        st.metric(
+            label="AI Compatibility Assessment",
+            value=f"{ai_score}%"
+        )
+
+    st.progress(skill_score / 100)
 
     st.subheader("Summary")
     st.write(analysis["summary"])
@@ -27,13 +40,13 @@ def display_analysis_dashboard(analysis):
     with col1:
         st.markdown("#### Matched Skills")
 
-        for skill in analysis["matched_skills"]:
+        for skill in skill_analysis["matched_skills"]:
             st.write(f"✓ {skill}")
 
     with col2:
         st.markdown("#### Missing Skills")
 
-        for skill in analysis["missing_skills"]:
+        for skill in skill_analysis["missing_skills"]:
             st.write(f"✗ {skill}")
 
     st.subheader("Strengths")
