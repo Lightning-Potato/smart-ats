@@ -5,6 +5,8 @@ from smart_ats.llm_client import get_llm_response
 from smart_ats.prompts import build_structured_analysis_prompt
 from smart_ats.analysis_parser import parse_analysis_response
 from smart_ats.ui_components import display_analysis_dashboard
+from smart_ats.skill_analysis import analyze_skill_match
+
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -47,6 +49,11 @@ if submitted:
         resume_text = extract_text_from_pdf(resume_file)
 
         if resume_text:
+            skill_analysis = analyze_skill_match(
+                job_description,
+                resume_text
+            )
+
             with st.spinner(
                 "Our AI is analyzing your inputs... This may take a moment."
             ):
@@ -57,13 +64,16 @@ if submitted:
 
                 response = get_llm_response(input_prompt)
 
-                try:
-                    analysis = parse_analysis_response(response)
+            try:
+                analysis = parse_analysis_response(response)
 
-                    display_analysis_dashboard(analysis)
+                display_analysis_dashboard(
+                    analysis,
+                    skill_analysis
+                )
 
-                except ValueError as e:
-                    st.error(str(e))
+            except ValueError as e:
+                st.error(str(e))
 
         else:
             st.error("There was an error reading the PDF file.")
