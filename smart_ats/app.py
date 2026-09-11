@@ -6,7 +6,7 @@ from smart_ats.prompts import build_structured_analysis_prompt
 from smart_ats.analysis_parser import parse_analysis_response
 from smart_ats.ui_components import display_analysis_dashboard
 from smart_ats.skill_analysis import analyze_skill_match
-
+from smart_ats.experience_analysis import analyze_experience_match
 
 st.set_page_config(
     page_title="Smart ATS",
@@ -54,6 +54,11 @@ if submitted:
                 resume_text
             )
 
+            experience_analysis = analyze_experience_match(
+                job_description,
+                resume_text
+            )
+
             with st.spinner(
                 "Our AI is analyzing your inputs... This may take a moment."
             ):
@@ -69,7 +74,8 @@ if submitted:
 
                 display_analysis_dashboard(
                     analysis,
-                    skill_analysis
+                    skill_analysis,
+                    experience_analysis
                 )
 
             except ValueError as e:
