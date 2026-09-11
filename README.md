@@ -103,6 +103,6 @@ python -m streamlit run smart_ats/app.py
 
 ## Development Status
 
-Current release: **v0.1.0**
+Current release: **v0.2.0**
 
-The project is currently being prepared for the **v0.2.0** release.
+Version 0.2.0 introduces structured ATS analysis, a dedicated analysis dashboard, mock LLM support, automated testing, improved project reproducibility, and a modular Python package structure.
