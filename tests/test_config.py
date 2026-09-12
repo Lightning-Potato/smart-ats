@@ -24,9 +24,7 @@ def test_load_config_uses_defaults(
         raising=False,
     )
 
-    config = load_config(
-        load_environment_file=False
-    )
+    config = load_config(load_environment_file=False)
 
     assert config.llm_mode == "mock"
     assert config.deepseek_api_key is None
@@ -49,9 +47,7 @@ def test_load_config_normalizes_values(
         raising=False,
     )
 
-    config = load_config(
-        load_environment_file=False
-    )
+    config = load_config(load_environment_file=False)
 
     assert config.llm_mode == "mock"
     assert config.log_level == "DEBUG"
@@ -64,9 +60,7 @@ def test_deepseek_mode_requires_api_key():
         log_level="INFO",
     )
 
-    with pytest.raises(
-        ConfigurationError
-    ):
+    with pytest.raises(ConfigurationError):
         validate_config(config)
 
 
@@ -87,9 +81,7 @@ def test_invalid_llm_mode_is_rejected():
         log_level="INFO",
     )
 
-    with pytest.raises(
-        ConfigurationError
-    ):
+    with pytest.raises(ConfigurationError):
         validate_config(config)
 
 
@@ -100,7 +92,5 @@ def test_invalid_log_level_is_rejected():
         log_level="LOUD",
     )
 
-    with pytest.raises(
-        ConfigurationError
-    ):
+    with pytest.raises(ConfigurationError):
         validate_config(config)

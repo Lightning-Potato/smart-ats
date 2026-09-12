@@ -14,11 +14,6 @@ def configure_logging(log_level):
 
     logging.basicConfig(
         level=numeric_level,
-        format=(
-            "%(asctime)s | "
-            "%(levelname)s | "
-            "%(name)s | "
-            "%(message)s"
-        ),
+        format=("%(asctime)s | %(levelname)s | %(name)s | %(message)s"),
         force=True,
     )

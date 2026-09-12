@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
-
 DEFAULT_LLM_MODE = "mock"
 DEFAULT_LOG_LEVEL = "INFO"
 
@@ -49,9 +48,7 @@ def load_config(
         DEFAULT_LLM_MODE,
     ).lower()
 
-    deepseek_api_key = os.getenv(
-        "DEEPSEEK_API_KEY"
-    )
+    deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
 
     log_level = os.getenv(
         "LOG_LEVEL",
@@ -75,21 +72,10 @@ def validate_config(config):
     """
 
     if config.llm_mode not in SUPPORTED_LLM_MODES:
-        raise ConfigurationError(
-            "Unsupported LLM_MODE. "
-            "Expected 'mock' or 'deepseek'."
-        )
+        raise ConfigurationError("Unsupported LLM_MODE. Expected 'mock' or 'deepseek'.")
 
-    if (
-        config.llm_mode == "deepseek"
-        and not config.deepseek_api_key
-    ):
-        raise ConfigurationError(
-            "DEEPSEEK_API_KEY is required "
-            "when LLM_MODE=deepseek."
-        )
+    if config.llm_mode == "deepseek" and not config.deepseek_api_key:
+        raise ConfigurationError("DEEPSEEK_API_KEY is required when LLM_MODE=deepseek.")
 
     if config.log_level not in SUPPORTED_LOG_LEVELS:
-        raise ConfigurationError(
-            "Unsupported LOG_LEVEL."
-        )
+        raise ConfigurationError("Unsupported LOG_LEVEL.")
