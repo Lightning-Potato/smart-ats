@@ -7,6 +7,8 @@ from smart_ats.experience_extractor import (
 from smart_ats.experience_timeline import (
     extract_experience_periods,
 )
+from smart_ats.resume_sections import parse_resume_sections
+
 
 
 def calculate_experience_match_score(
@@ -49,8 +51,12 @@ def analyze_experience_match(
         job_description
     )
 
-    experience_periods = extract_experience_periods(
+    experience_text = get_experience_text(
         resume_text
+    )
+
+    experience_periods = extract_experience_periods(
+        experience_text
     )
 
     candidate_years = calculate_total_experience_years(
@@ -71,3 +77,24 @@ def analyze_experience_match(
         "experience_match_score": experience_match_score,
         "experience_periods": experience_periods,
     }
+
+
+def get_experience_text(resume_text):
+    """
+    Returns the most appropriate text for employment
+    timeline analysis.
+
+    Uses the recognized experience section when available.
+    Falls back to the full resume only when no recognized
+    resume sections are detected.
+    """
+
+    sections = parse_resume_sections(resume_text)
+
+    if "experience" in sections:
+        return sections["experience"]
+
+    if not sections:
+        return resume_text
+
+    return ""
