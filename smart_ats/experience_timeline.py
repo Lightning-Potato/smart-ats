@@ -1,7 +1,6 @@
 import re
 from datetime import date
 
-
 MONTHS = {
     "jan": 1,
     "january": 1,
@@ -29,6 +28,7 @@ MONTHS = {
     "december": 12,
 }
 
+
 def parse_month_year(month_text, year_text):
     """
     Converts a month name and year into a date object.
@@ -38,6 +38,7 @@ def parse_month_year(month_text, year_text):
     year = int(year_text)
 
     return date(year, month, 1)
+
 
 def extract_experience_periods(resume_text):
     """
@@ -64,11 +65,7 @@ def extract_experience_periods(resume_text):
         )
     """
 
-    matches = re.findall(
-        pattern,
-        resume_text,
-        re.IGNORECASE | re.VERBOSE
-    )
+    matches = re.findall(pattern, resume_text, re.IGNORECASE | re.VERBOSE)
 
     periods = []
 
@@ -79,22 +76,13 @@ def extract_experience_periods(resume_text):
         end_year = match[3]
         present_marker = match[4]
 
-        start_date = parse_month_year(
-            start_month,
-            start_year
-        )
+        start_date = parse_month_year(start_month, start_year)
 
         if present_marker:
             end_date = None
         else:
-            end_date = parse_month_year(
-                end_month,
-                end_year
-            )
+            end_date = parse_month_year(end_month, end_year)
 
-        periods.append({
-            "start": start_date,
-            "end": end_date
-        })
+        periods.append({"start": start_date, "end": end_date})
 
     return periods

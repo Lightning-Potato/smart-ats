@@ -15,9 +15,7 @@ AWS
 Kubernetes
 """
 
-    sections = parse_requirement_sections(
-        job_description
-    )
+    sections = parse_requirement_sections(job_description)
 
     assert "required" in sections
     assert "preferred" in sections
@@ -40,9 +38,7 @@ AWS
 Kubernetes
 """
 
-    sections = parse_requirement_sections(
-        job_description
-    )
+    sections = parse_requirement_sections(job_description)
 
     assert "AWS" not in sections["required"]
     assert "Kubernetes" not in sections["required"]
@@ -62,9 +58,7 @@ AWS
 Docker
 """
 
-    sections = parse_requirement_sections(
-        job_description
-    )
+    sections = parse_requirement_sections(job_description)
 
     assert "Python" in sections["required"]
     assert "PostgreSQL" in sections["required"]
@@ -83,9 +77,7 @@ Preferred Qualifications:
 AWS
 """
 
-    sections = parse_requirement_sections(
-        job_description
-    )
+    sections = parse_requirement_sections(job_description)
 
     assert "Python" in sections["required"]
     assert "AWS" in sections["preferred"]
@@ -103,9 +95,7 @@ Amazon Web Services
 Kubernetes
 """
 
-    result = extract_skill_requirements(
-        job_description
-    )
+    result = extract_skill_requirements(job_description)
 
     assert set(result["required_skills"]) == {
         "python",
@@ -126,9 +116,7 @@ Python
 Docker
 """
 
-    result = extract_skill_requirements(
-        job_description
-    )
+    result = extract_skill_requirements(job_description)
 
     assert set(result["required_skills"]) == {
         "python",
@@ -145,9 +133,7 @@ AWS
 Docker
 """
 
-    result = extract_skill_requirements(
-        job_description
-    )
+    result = extract_skill_requirements(job_description)
 
     assert result["required_skills"] == []
 
@@ -163,9 +149,7 @@ We are looking for a software engineer with
 experience in Python, Docker and AWS.
 """
 
-    result = extract_skill_requirements(
-        job_description
-    )
+    result = extract_skill_requirements(job_description)
 
     assert result["required_skills"] == []
     assert result["preferred_skills"] == []

@@ -1,24 +1,13 @@
 import json
 
 
-
-import json
-
-
-def build_structured_analysis_prompt(
-    job_description,
-    resume_text,
-    findings
-):
+def build_structured_analysis_prompt(job_description, resume_text, findings):
     """
     Builds a grounded prompt that requests structured
     qualitative ATS insights in JSON format.
     """
 
-    findings_json = json.dumps(
-        findings,
-        indent=2
-    )
+    findings_json = json.dumps(findings, indent=2)
 
     return f"""
 You are a highly skilled Applicant Tracking System (ATS) analyst

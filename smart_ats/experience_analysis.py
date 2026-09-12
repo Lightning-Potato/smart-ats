@@ -10,11 +10,7 @@ from smart_ats.experience_timeline import (
 from smart_ats.resume_sections import parse_resume_sections
 
 
-
-def calculate_experience_match_score(
-    candidate_years,
-    required_years
-):
+def calculate_experience_match_score(candidate_years, required_years):
     """
     Calculates how well the candidate satisfies the
     explicitly stated experience requirement.
@@ -30,45 +26,27 @@ def calculate_experience_match_score(
     if required_years <= 0:
         return 100.0
 
-    score = min(
-        candidate_years / required_years,
-        1.0
-    ) * 100
+    score = min(candidate_years / required_years, 1.0) * 100
 
     return round(score, 2)
 
-def analyze_experience_match(
-    job_description,
-    resume_text,
-    current_date=None
-):
+
+def analyze_experience_match(job_description, resume_text, current_date=None):
     """
     Analyzes experience compatibility between
     a job description and resume.
     """
 
-    required_years = extract_required_years(
-        job_description
-    )
+    required_years = extract_required_years(job_description)
 
-    experience_text = get_experience_text(
-        resume_text
-    )
+    experience_text = get_experience_text(resume_text)
 
-    experience_periods = extract_experience_periods(
-        experience_text
-    )
+    experience_periods = extract_experience_periods(experience_text)
 
-    candidate_years = calculate_total_experience_years(
-        experience_periods,
-        current_date
-    )
+    candidate_years = calculate_total_experience_years(experience_periods, current_date)
 
-    experience_match_score = (
-        calculate_experience_match_score(
-            candidate_years,
-            required_years
-        )
+    experience_match_score = calculate_experience_match_score(
+        candidate_years, required_years
     )
 
     return {

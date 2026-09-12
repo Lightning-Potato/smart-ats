@@ -16,18 +16,18 @@ def get_mock_analysis_response():
         "strengths": [
             "Strong programming foundation",
             "Relevant software engineering education",
-            "Experience with multiple programming languages"
+            "Experience with multiple programming languages",
         ],
         "gaps": [
             "Limited demonstrated cloud experience",
             "Some role-specific technologies are not clearly demonstrated",
-            "Relevant experience could be described in greater detail"
+            "Relevant experience could be described in greater detail",
         ],
         "recommendations": [
             "Highlight relevant technical experience where applicable",
             "Add measurable outcomes to technical projects",
-            "Demonstrate experience with technologies required by the role"
-        ]
+            "Demonstrate experience with technologies required by the role",
+        ],
     }
 
     return json.dumps(mock_analysis)

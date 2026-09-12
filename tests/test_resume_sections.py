@@ -130,5 +130,3 @@ Built using Python and PyTorch.
 
     assert "projects" in sections
     assert "PyTorch" in sections["projects"]
-
-

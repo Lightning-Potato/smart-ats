@@ -1,8 +1,9 @@
 import re
 
 from smart_ats.matching_engine import normalize_skill
-from smart_ats.skill_vocabulary import SKILL_VOCABULARY
 from smart_ats.skill_aliases import SKILL_ALIASES
+from smart_ats.skill_vocabulary import SKILL_VOCABULARY
+
 
 def extract_skills(text):
     """
@@ -12,10 +13,7 @@ def extract_skills(text):
         list: Skills detected in the text.
     """
 
-    extractable_skills = (
-        SKILL_VOCABULARY
-        | set(SKILL_ALIASES.keys())
-    )
+    extractable_skills = SKILL_VOCABULARY | set(SKILL_ALIASES.keys())
 
     detected_skills = []
 

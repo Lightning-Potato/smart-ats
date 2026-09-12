@@ -1,6 +1,5 @@
 import json
 
-
 REQUIRED_ANALYSIS_FIELDS = {
     "summary",
     "strengths",
@@ -25,18 +24,12 @@ def parse_analysis_response(response):
         analysis = json.loads(response)
 
     except json.JSONDecodeError as e:
-        raise ValueError(
-            f"Failed to parse LLM response as JSON: {e}"
-        )
+        raise ValueError(f"Failed to parse LLM response as JSON: {e}")
 
     if not isinstance(analysis, dict):
-        raise ValueError(
-            "LLM analysis response must be a JSON object."
-        )
+        raise ValueError("LLM analysis response must be a JSON object.")
 
-    missing_fields = (
-        REQUIRED_ANALYSIS_FIELDS - analysis.keys()
-    )
+    missing_fields = REQUIRED_ANALYSIS_FIELDS - analysis.keys()
 
     if missing_fields:
         raise ValueError(
