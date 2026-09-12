@@ -211,9 +211,8 @@ a proprietary or industry-standard ATS algorithm.
 
 ## Development Status
 
-Current release: **v0.3.0**
+Current release: **v0.4.0**
 
-The project is currently being prepared for the **v0.4.0** release,
-which introduces structured resume and job-description understanding,
-source-based skill evidence, requirement-aware matching, and grounded
-AI insights.
+Version 0.4.0 introduces structured resume and job-description
+understanding, source-based skill evidence, requirement-aware matching,
+and deterministic findings used to ground qualitative AI analysis.
