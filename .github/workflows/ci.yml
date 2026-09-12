@@ -82,3 +82,42 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t smart-ats:ci .
+
+      - name: Start Docker container
+        run: |
+          docker run -d \
+            --name smart-ats-ci \
+            -p 8501:8501 \
+            -e LLM_MODE=mock \
+            -e LOG_LEVEL=INFO \
+            smart-ats:ci
+
+      - name: Wait for container health
+        run: |
+          for i in {1..30}; do
+            STATUS=$(docker inspect \
+              --format='{{.State.Health.Status}}' \
+              smart-ats-ci)
+
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Smart ATS container is healthy."
+              exit 0
+            fi
+
+            if [ "$STATUS" = "unhealthy" ]; then
+              echo "Smart ATS container became unhealthy."
+              docker logs smart-ats-ci
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          echo "Timed out waiting for Smart ATS health check."
+          docker logs smart-ats-ci
+          exit 1
+
+      - name: Stop Docker container
+        if: always()
+        run: |
+          docker rm -f smart-ats-ci || true
