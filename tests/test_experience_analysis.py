@@ -3,6 +3,7 @@ from datetime import date
 from smart_ats.experience_analysis import (
     analyze_experience_match,
     calculate_experience_match_score,
+    get_experience_text,
 )
 
 
@@ -95,3 +96,145 @@ def test_analyze_insufficient_experience():
 
     assert result["candidate_years"] == 2.0
     assert result["experience_match_score"] == 50.0
+
+
+def test_get_experience_text_uses_experience_section():
+    resume = """
+EDUCATION
+University
+Jan 2020 - Dec 2022
+
+WORK EXPERIENCE
+Software Engineer
+Jan 2023 - Dec 2024
+"""
+
+    result = get_experience_text(resume)
+
+    assert "Software Engineer" in result
+    assert "Jan 2023 - Dec 2024" in result
+
+    assert "University" not in result
+    assert "Jan 2020 - Dec 2022" not in result
+
+
+def test_get_experience_text_falls_back_to_full_resume():
+    resume = """
+John Doe
+
+Software Engineer
+Company ABC
+Jan 2023 - Dec 2024
+"""
+
+    result = get_experience_text(resume)
+
+    assert result == resume
+
+
+def test_education_dates_are_not_counted_as_experience():
+    job_description = """
+Candidates should have 3+ years of experience
+in software engineering.
+"""
+
+    resume_text = """
+EDUCATION
+University of Example
+Jan 2020 - Dec 2023
+
+WORK EXPERIENCE
+Software Engineer
+Jan 2024 - Dec 2024
+"""
+
+    result = analyze_experience_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["candidate_years"] == 1.0
+
+
+def test_unstructured_resume_still_supports_experience_analysis():
+    job_description = """
+Candidates should have 2 years of experience.
+"""
+
+    resume_text = """
+Software Engineer
+Company ABC
+Jan 2023 - Dec 2024
+"""
+
+    result = analyze_experience_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["candidate_years"] == 2.0
+    assert result["experience_match_score"] == 100.0
+
+
+def test_structured_resume_without_experience_does_not_fallback():
+    resume = """
+SKILLS
+Python
+Docker
+
+EDUCATION
+University
+Jan 2020 - Dec 2023
+"""
+
+    result = get_experience_text(resume)
+
+    assert result == ""
+
+
+def test_structured_resume_without_experience_returns_zero_years():
+    job_description = """
+Candidates should have 3 years of experience.
+"""
+
+    resume_text = """
+SKILLS
+Python
+Docker
+
+EDUCATION
+University
+Jan 2020 - Dec 2023
+"""
+
+    result = analyze_experience_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["candidate_years"] == 0.0
+    assert result["experience_match_score"] == 0.0
+
+
+def test_experience_analysis_supports_section_alias():
+    job_description = """
+Candidates should have 2 years of experience.
+"""
+
+    resume_text = """
+EDUCATION
+University
+Jan 2019 - Dec 2022
+
+PROFESSIONAL EXPERIENCE
+Software Engineer
+Jan 2023 - Dec 2024
+"""
+
+    result = analyze_experience_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["candidate_years"] == 2.0
+    assert result["experience_match_score"] == 100.0
