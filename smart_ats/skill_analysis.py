@@ -3,6 +3,8 @@ from smart_ats.matching_engine import (
     match_skills,
 )
 from smart_ats.skill_extractor import extract_skills
+from smart_ats.skill_evidence import analyze_skill_evidence
+
 
 
 def analyze_skill_match(job_description, resume_text):
@@ -27,10 +29,34 @@ def analyze_skill_match(job_description, resume_text):
         job_skills
     )
 
+    skill_evidence = analyze_skill_evidence(
+        resume_text
+    )
+
+    matched_skill_details = []
+
+    for skill in match_result["matched_skills"]:
+        evidence = skill_evidence.get(
+            skill,
+            {
+                "detected": True,
+                "declared": False,
+                "demonstrated": False,
+            }
+        )
+
+        matched_skill_details.append({
+            "skill": skill,
+            "detected": evidence["detected"],
+            "declared": evidence["declared"],
+            "demonstrated": evidence["demonstrated"],
+        })
+
     return {
         "job_skills": job_skills,
         "resume_skills": resume_skills,
         "matched_skills": match_result["matched_skills"],
         "missing_skills": match_result["missing_skills"],
-        "skill_match_score": skill_match_score
+        "skill_match_score": skill_match_score,
+        "matched_skill_details": matched_skill_details
     }
