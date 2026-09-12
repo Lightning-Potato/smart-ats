@@ -4,6 +4,8 @@ Smart ATS is an AI-powered Applicant Tracking System that analyzes a resume agai
 
 ## Current Features
 
+### ATS Analysis
+
 - Job description input and PDF resume upload through Streamlit
 - PDF text extraction using PyPDF2
 - Deterministic resume section parsing
@@ -13,21 +15,36 @@ Smart ATS is an AI-powered Applicant Tracking System that analyzes a resume agai
 - Source-based skill evidence tracking across Skills, Experience, and Projects
 - Required and preferred job skill classification
 - Requirement-aware deterministic skill matching
-- Separate required and preferred skill presentation
 - Deterministic experience requirement extraction
 - Resume employment timeline parsing
 - Overlapping employment period handling
-- Deterministic skill and experience scoring
-- Weighted overall ATS scoring with missing-dimension normalization
-- Structured deterministic findings for LLM grounding
-- Grounded AI-generated summaries, strengths, gaps, and recommendations
+- Weighted ATS scoring with missing-dimension normalization
+
+### AI Insights
+
+- Deterministic findings used as grounding context for the LLM
+- AI-generated summaries, strengths, gaps, and recommendations
 - Structured LLM response validation
-- Mock LLM mode for cost-free local development
-- Automated testing with pytest
-- Continuous integration using GitHub Actions
-- Secure API key management using environment variables
+- Mock LLM mode for cost-free and deterministic development
+- Graceful degradation when AI insight generation is unavailable
+
+### Production Engineering
+
+- Centralized application configuration and startup validation
+- Environment-based runtime configuration
+- Structured application logging
+- User-safe error handling with developer-facing exception diagnostics
+- Ruff linting and formatting
+- Automated pytest regression testing
+- GitHub Actions quality gates
+- Dockerized Python 3.12 runtime
+- Container-level Streamlit health checks
+- Automated Docker build and runtime health validation in CI
+- Secret-safe container configuration
 
 ## Tech Stack
+
+### Application
 
 - Python 3.12
 - Streamlit
@@ -35,9 +52,17 @@ Smart ATS is an AI-powered Applicant Tracking System that analyzes a resume agai
 - DeepSeek API
 - OpenAI-compatible Python SDK
 - python-dotenv
+
+### Quality and Testing
+
 - pytest
-- Git and GitHub
+- Ruff
 - GitHub Actions
+
+### Runtime and Delivery
+
+- Docker
+- Git and GitHub
 
 ## Project Structure
 
@@ -51,6 +76,7 @@ smart-ats/
 │   ├── __init__.py
 │   ├── app.py
 │   ├── analysis_parser.py
+│   ├── config.py
 │   ├── experience_analysis.py
 │   ├── experience_calculator.py
 │   ├── experience_extractor.py
@@ -58,6 +84,7 @@ smart-ats/
 │   ├── findings.py
 │   ├── job_requirements.py
 │   ├── llm_client.py
+│   ├── logging_config.py
 │   ├── matching_engine.py
 │   ├── mock_responses.py
 │   ├── prompts.py
@@ -73,68 +100,20 @@ smart-ats/
 │   └── utility.py
 │
 ├── tests/
+├── .dockerignore
 ├── .env.example
 ├── .gitignore
+├── Dockerfile
+├── pyproject.toml
 ├── pytest.ini
 ├── requirements.txt
 └── README.md
 ```
 
-## Local Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Lightning-Potato/smart-ats.git
-cd smart-ats
-```
-
-### 2. Create a Virtual Environment
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-
-Create a local `.env` file from the provided example:
-
-```bash
-cp .env.example .env
-```
-
-For cost-free local development:
-
-```env
-LLM_MODE=mock
-```
-
-To use the DeepSeek API:
-
-```env
-LLM_MODE=deepseek
-DEEPSEEK_API_KEY=your_api_key_here
-```
-
-Never commit your real API key to version control.
-
-### 5. Run the Application
-
-```bash
-python -m streamlit run smart_ats/app.py
-```
-
 ## Architecture
 
-Smart ATS uses a hybrid architecture that combines deterministic
-resume-job matching with grounded LLM-generated qualitative feedback.
+Smart ATS uses a hybrid architecture that separates deterministic
+resume-job assessment from qualitative AI feedback.
 
 ```text
 Job Description                     Resume
@@ -149,28 +128,36 @@ Skills                         Projects / Education
                       ▼
              Deterministic Engine
                       │
-             ┌────────┴─────────┐
-             │                  │
-             ▼                  ▼
-       ATS Scoring      Structured Findings
-             │                  │
-             │                  ▼
-             │               LLM
-             │                  │
-             │          Qualitative Insights
-             │                  │
-             └────────┬─────────┘
-                      ▼
-                 ATS Dashboard
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+ Skill Matching   Experience     Evidence
+                   Analysis      Tracking
+        │             │             │
+        └─────────────┴──────┬──────┘
+                             ▼
+                   Deterministic Results
+                             │
+                    ┌────────┴─────────┐
+                    ▼                  ▼
+               ATS Scoring      Structured Findings
+                                       │
+                                       ▼
+                                  Grounded LLM
+                                       │
+                                       ▼
+                              Qualitative Insights
+                    │                  │
+                    └────────┬─────────┘
+                             ▼
+                        ATS Dashboard
 ```
 
-Deterministic parsing, matching, and scoring are used for measurable
-resume-job compatibility. These results are transformed into structured
-findings that ground the LLM's qualitative analysis.
+Deterministic components own measurable ATS assessment and scoring.
+The LLM is used only for qualitative feedback and consumes structured
+findings generated by the deterministic engine.
 
-The LLM does not determine the ATS score. It uses deterministic findings
-together with the original documents to generate summaries, strengths,
-gaps, and recommendations.
+If the LLM is unavailable, Smart ATS preserves and displays the
+deterministic analysis instead of failing the entire request.
 
 ## Scoring Model
 
@@ -194,25 +181,267 @@ calculated entirely from the experience dimension.
 The weighting model is project-defined and is not intended to represent
 a proprietary or industry-standard ATS algorithm.
 
+## Runtime Architecture
+
+```text
+Runtime Environment
+        │
+        ▼
+ Centralized Config
+        │
+        ├──────────────┐
+        ▼              ▼
+    Logging        LLM Client
+        │              │
+        └──────┬───────┘
+               ▼
+          Smart ATS
+               │
+               ▼
+        Streamlit :8501
+               │
+               ▼
+       Health Endpoint
+       /_stcore/health
+```
+
+Application configuration is loaded and validated at startup.
+
+Invalid configuration fails fast before user analysis begins, while
+runtime failures in the optional LLM subsystem degrade gracefully and
+preserve deterministic ATS results.
+
+## Configuration
+
+Smart ATS uses centralized environment-based configuration.
+
+| Variable | Default | Required | Description |
+| --- | --- | --- | --- |
+| `LLM_MODE` | `mock` | No | Selects `mock` or `deepseek` mode |
+| `DEEPSEEK_API_KEY` | None | Only in `deepseek` mode | DeepSeek API credential |
+| `LOG_LEVEL` | `INFO` | No | Application logging level |
+
+Supported log levels are:
+
+`DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`.
+
+Configuration is validated during application startup. For example,
+`LLM_MODE=deepseek` without a DeepSeek API key is rejected before
+resume analysis begins.
+
+Real credentials must be stored in a local `.env` file or injected
+through the runtime environment. They must never be committed to
+version control or embedded in the Docker image.
+
+## Local Development
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Lightning-Potato/smart-ats.git
+cd smart-ats
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure the Application
+
+```bash
+cp .env.example .env
+```
+
+For cost-free local development:
+
+```env
+LLM_MODE=mock
+DEEPSEEK_API_KEY=
+LOG_LEVEL=INFO
+```
+
+To use DeepSeek:
+
+```env
+LLM_MODE=deepseek
+DEEPSEEK_API_KEY=your_api_key_here
+LOG_LEVEL=INFO
+```
+
+Never commit the local `.env` file.
+
+### 5. Run Smart ATS
+
+```bash
+python -m streamlit run smart_ats/app.py
+```
+
+## Docker
+
+### Build the Image
+
+```bash
+docker build -t smart-ats:local .
+```
+
+### Run in Mock Mode
+
+```bash
+docker run --rm \
+  -p 8501:8501 \
+  -e LLM_MODE=mock \
+  -e LOG_LEVEL=INFO \
+  smart-ats:local
+```
+
+Open:
+
+```text
+http://localhost:8501
+```
+
+### Runtime Configuration
+
+Application secrets are not embedded in the Docker image.
+Configuration is injected when the container starts.
+
+For DeepSeek mode, provide the API key through the runtime environment
+rather than copying a local `.env` file into the image.
+
+### Container Health
+
+The image includes a health check against Streamlit's runtime health
+endpoint:
+
+```text
+/_stcore/health
+```
+
+A running container can be inspected with:
+
+```bash
+docker ps
+```
+
+A healthy instance reports a status similar to:
+
+```text
+Up ... (healthy)
+```
+
+## Code Quality
+
+Ruff is used for Python linting, import organization, and formatting.
+
+Run lint checks:
+
+```bash
+ruff check .
+```
+
+Verify formatting:
+
+```bash
+ruff format --check .
+```
+
+Apply automatic lint fixes where supported:
+
+```bash
+ruff check . --fix
+```
+
+Format the repository:
+
+```bash
+ruff format .
+```
+
+## Testing
+
+Run the full automated test suite with:
+
+```bash
+pytest
+```
+
+The test suite covers deterministic parsing, skill matching,
+experience analysis, scoring, configuration validation, LLM response
+contracts, evidence propagation, and regression scenarios.
+
+Mock LLM mode keeps automated tests deterministic and avoids external
+API cost and availability dependencies.
+
+## Continuous Integration
+
+GitHub Actions validates pull requests and updates to `main`.
+
+The current quality gates include:
+
+- Ruff lint validation
+- Ruff formatting validation
+- pytest regression tests
+- Docker image build validation
+- Container startup and health validation
+
+The Docker CI job builds the deployable image, starts the application
+in mock mode, waits for the container health check to pass, and
+surfaces container logs if runtime validation fails.
+
+## Reliability Model
+
+Smart ATS distinguishes between essential deterministic analysis and
+optional AI-generated insights.
+
+Failures in PDF processing or deterministic ATS analysis stop the
+request because the core assessment cannot be completed reliably.
+
+Failures in the external LLM service do not invalidate deterministic
+results. In this case, the application continues to display skill,
+experience, and overall ATS analysis while marking AI insights as
+temporarily unavailable.
+
+Technical exceptions are recorded through application logging, while
+users receive concise error messages without raw internal tracebacks.
+
+## Deployment
+
+Smart ATS is containerized and validated through automated Docker
+build and runtime health checks.
+
+Public deployment is planned as part of the v0.5.0 release hardening
+process after the repository completes its public-release security
+review.
+
 ## Known Limitations
 
-- Resume section detection relies on a curated set of recognized headings.
-- Unstructured resumes may preserve detected skills without reliable evidence-source classification.
-- Skill extraction relies on a curated technical vocabulary and known aliases.
-- Specialized or unknown technologies may not be detected.
-- Required and preferred skill classification works best with explicit job-description section headings.
-- Requirement language embedded in free-form sentences may use fallback classification rather than precise requirement semantics.
-- Experience requirement extraction supports a limited set of explicit year-based phrases.
-- Employment timeline parsing supports selected month-year formats.
-- Section-aware parsing reduces education-date contamination but does not provide full semantic document understanding.
-- Deterministic scoring currently covers required technical skills and explicit experience requirements only.
-- LLM insights are grounded through prompting but remain generative and are not mathematically guaranteed to follow every instruction.
+- Resume section detection relies on recognized headings.
+- Skill extraction relies on a curated technical vocabulary and aliases.
+- Unstructured resumes may not provide reliable evidence-source classification.
+- Required/preferred classification works best with explicit job-description sections.
+- Experience extraction supports selected explicit year and date formats.
+- Deterministic scoring currently evaluates required technical skills and explicit experience requirements only.
+- LLM grounding is prompt-based and cannot mathematically guarantee every generated statement follows deterministic findings.
 - Scanned PDF resumes are not currently supported through OCR.
+- The current deployment model is single-instance and does not include persistent storage or user accounts.
+- Uploaded resumes are processed per application session and are not stored by Smart ATS as application records.
 
 ## Development Status
 
 Current release: **v0.4.0**
 
-Version 0.4.0 introduces structured resume and job-description
-understanding, source-based skill evidence, requirement-aware matching,
-and deterministic findings used to ground qualitative AI analysis.
+Version **v0.5.0** is currently in release preparation.
+
+The v0.5 development cycle focuses on production engineering,
+including automated code-quality enforcement, application logging,
+graceful failure handling, centralized configuration, Docker
+containerization, runtime health validation, and deployment readiness.
