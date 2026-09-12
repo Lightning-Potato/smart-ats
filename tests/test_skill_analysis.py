@@ -1,4 +1,7 @@
-from smart_ats.skill_analysis import analyze_skill_match
+from smart_ats.skill_analysis import (
+    analyze_skill_match,
+    resolve_job_skill_requirements,
+)
 
 
 def test_analyze_skill_match():
@@ -283,3 +286,147 @@ Python
     assert "sources" in detail
     assert "declared" not in detail
     assert "demonstrated" not in detail
+
+
+def test_resolve_structured_job_skill_requirements():
+    job_description = """
+REQUIRED SKILLS
+Python
+Docker
+
+PREFERRED SKILLS
+AWS
+Kubernetes
+"""
+
+    result = resolve_job_skill_requirements(
+        job_description
+    )
+
+    assert set(result["required_skills"]) == {
+        "python",
+        "docker"
+    }
+
+    assert set(result["preferred_skills"]) == {
+        "aws",
+        "kubernetes"
+    }
+
+    assert result["used_fallback"] is False
+
+
+def test_resolve_unstructured_job_skills_with_fallback():
+    job_description = """
+We are looking for an engineer with experience
+in Python, Docker and AWS.
+"""
+
+    result = resolve_job_skill_requirements(
+        job_description
+    )
+
+    assert set(result["required_skills"]) == {
+        "python",
+        "docker",
+        "aws"
+    }
+
+    assert result["preferred_skills"] == []
+    assert result["used_fallback"] is True
+
+
+def test_preferred_skills_do_not_reduce_required_skill_score():
+    job_description = """
+REQUIRED SKILLS
+Python
+Docker
+
+PREFERRED SKILLS
+AWS
+Kubernetes
+"""
+
+    resume_text = """
+SKILLS
+Python
+Docker
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert set(result["matched_required_skills"]) == {
+        "python",
+        "docker"
+    }
+
+    assert result["missing_required_skills"] == []
+
+    assert result["matched_preferred_skills"] == []
+
+    assert set(
+        result["missing_preferred_skills"]
+    ) == {
+        "aws",
+        "kubernetes"
+    }
+
+    assert result["skill_match_score"] == 100.0
+
+
+def test_missing_required_skill_reduces_skill_score():
+    job_description = """
+REQUIRED SKILLS
+Python
+Docker
+
+PREFERRED SKILLS
+AWS
+"""
+
+    resume_text = """
+SKILLS
+Python
+AWS
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert set(result["matched_required_skills"]) == {
+        "python"
+    }
+
+    assert set(result["missing_required_skills"]) == {
+        "docker"
+    }
+
+    assert set(result["matched_preferred_skills"]) == {
+        "aws"
+    }
+
+    assert result["skill_match_score"] == 50.0
+
+
+def test_unstructured_job_description_preserves_legacy_score():
+    job_description = """
+We need experience with Python, Docker,
+AWS and PostgreSQL.
+"""
+
+    resume_text = """
+Experienced with Python, Docker and PostgreSQL.
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["requirement_fallback_used"] is True
+    assert result["skill_match_score"] == 75.0
