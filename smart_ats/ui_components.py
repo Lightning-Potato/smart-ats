@@ -5,25 +5,30 @@ from smart_ats.skill_metadata import get_skill_display_name
 
 def display_skill_evidence(skill_detail):
     """
-    Displays evidence information for a matched skill.
+    Displays source-based evidence for a matched skill.
     """
 
     skill_name = get_skill_display_name(
         skill_detail["skill"]
     )
 
+    sources = skill_detail["sources"]
+
     st.markdown(f"**✓ {skill_name}**")
 
-    if skill_detail["declared"]:
+    if "skills" in sources:
         st.caption("✓ Declared in Skills section")
-    else:
-        st.caption("○ Not listed in a recognized Skills section")
 
-    if skill_detail["demonstrated"]:
+    if "experience" in sources:
         st.caption("✓ Demonstrated in Experience section")
-    else:
+
+    if "projects" in sources:
+        st.caption("✓ Demonstrated in Projects section")
+
+    if not sources:
         st.caption(
-            "○ No experience-section evidence detected"
+            "○ Skill detected, but no recognized evidence "
+            "source was identified"
         )
 
 

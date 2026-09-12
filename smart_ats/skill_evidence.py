@@ -63,8 +63,6 @@ def analyze_skill_evidence(resume_text):
         evidence[skill] = {
             "detected": True,
             "sources": sources,
-            "declared": "skills" in sources,
-            "demonstrated": "experience" in sources,
         }
 
     return evidence

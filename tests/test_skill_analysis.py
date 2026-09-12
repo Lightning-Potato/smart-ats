@@ -30,6 +30,7 @@ def test_analyze_skill_match():
 
     assert result["skill_match_score"] == 75.0
 
+
 def test_analyze_skill_match_with_full_match():
     job_description = """
     Required skills: Python, Docker and AWS.
@@ -54,6 +55,7 @@ def test_analyze_skill_match_with_full_match():
 
     assert result["skill_match_score"] == 100.0
 
+
 def test_analyze_skill_match_with_no_match():
     job_description = """
     Required skills: Python, Docker and AWS.
@@ -77,6 +79,7 @@ def test_analyze_skill_match_with_no_match():
     }
 
     assert result["skill_match_score"] == 0.0
+
 
 def test_analyze_skill_match_with_aliases():
     job_description = """
@@ -103,7 +106,7 @@ def test_analyze_skill_match_with_aliases():
     assert result["skill_match_score"] == 100.0
 
 
-def test_matched_skill_details_include_evidence():
+def test_matched_skill_details_include_evidence_sources():
     job_description = """
 Required skills:
 Python, AWS, PostgreSQL
@@ -129,14 +132,18 @@ Built backend services using Python and PostgreSQL.
         for item in result["matched_skill_details"]
     }
 
-    assert details["python"]["declared"] is True
-    assert details["python"]["demonstrated"] is True
+    assert details["python"]["sources"] == {
+        "skills",
+        "experience"
+    }
 
-    assert details["aws"]["declared"] is True
-    assert details["aws"]["demonstrated"] is False
+    assert details["aws"]["sources"] == {
+        "skills"
+    }
 
-    assert details["postgresql"]["declared"] is False
-    assert details["postgresql"]["demonstrated"] is True
+    assert details["postgresql"]["sources"] == {
+        "experience"
+    }
 
 
 def test_matched_skill_details_preserve_alias_evidence():
@@ -163,8 +170,11 @@ Deployed production services using Amazon Web Services.
     }
 
     assert "aws" in details
-    assert details["aws"]["declared"] is True
-    assert details["aws"]["demonstrated"] is True
+
+    assert details["aws"]["sources"] == {
+        "skills",
+        "experience"
+    }
 
 
 def test_matched_skill_details_handle_unstructured_resume():
@@ -189,10 +199,10 @@ Built backend systems using Python and Docker.
     }
 
     assert details["python"]["detected"] is True
-    assert details["python"]["declared"] is False
-    assert details["python"]["demonstrated"] is False
+    assert details["python"]["sources"] == set()
 
     assert details["docker"]["detected"] is True
+    assert details["docker"]["sources"] == set()
 
 
 def test_skill_evidence_does_not_change_match_score():
@@ -243,10 +253,33 @@ Built using Python and Docker.
         for item in result["matched_skill_details"]
     }
 
-    assert "projects" in details["python"]["sources"]
-    assert "projects" in details["docker"]["sources"]
+    assert details["python"]["sources"] == {
+        "skills",
+        "projects"
+    }
 
-    assert "skills" in details["python"]["sources"]
     assert details["docker"]["sources"] == {
         "projects"
     }
+
+
+def test_matched_skill_details_use_source_based_contract():
+    job_description = """
+Required skill: Python
+"""
+
+    resume_text = """
+SKILLS
+Python
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    detail = result["matched_skill_details"][0]
+
+    assert "sources" in detail
+    assert "declared" not in detail
+    assert "demonstrated" not in detail

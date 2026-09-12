@@ -41,8 +41,6 @@ def analyze_skill_match(job_description, resume_text):
             {
                 "detected": True,
                 "sources": set(),
-                "declared": False,
-                "demonstrated": False,
             }
         )
 
@@ -50,8 +48,6 @@ def analyze_skill_match(job_description, resume_text):
             "skill": skill,
             "detected": evidence["detected"],
             "sources": evidence["sources"],
-            "declared": evidence["declared"],
-            "demonstrated": evidence["demonstrated"],
         })
 
     return {

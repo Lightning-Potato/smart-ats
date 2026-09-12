@@ -15,8 +15,10 @@ Built backend services using Python.
     evidence = analyze_skill_evidence(resume)
 
     assert evidence["python"]["detected"] is True
-    assert evidence["python"]["declared"] is True
-    assert evidence["python"]["demonstrated"] is True
+    assert evidence["python"]["sources"] == {
+        "skills",
+        "experience",
+    }
 
 
 def test_skill_can_be_declared_only():
@@ -33,8 +35,9 @@ Built backend services using Python.
     evidence = analyze_skill_evidence(resume)
 
     assert evidence["aws"]["detected"] is True
-    assert evidence["aws"]["declared"] is True
-    assert evidence["aws"]["demonstrated"] is False
+    assert evidence["aws"]["sources"] == {
+        "skills",
+    }
 
 
 def test_skill_can_be_demonstrated_only():
@@ -50,8 +53,9 @@ Built services using Python and PostgreSQL.
     evidence = analyze_skill_evidence(resume)
 
     assert evidence["postgresql"]["detected"] is True
-    assert evidence["postgresql"]["declared"] is False
-    assert evidence["postgresql"]["demonstrated"] is True
+    assert evidence["postgresql"]["sources"] == {
+        "experience",
+    }
 
 
 def test_skill_evidence_uses_canonical_aliases():
@@ -67,8 +71,10 @@ Deployed services using AWS.
 
     assert "aws" in evidence
     assert evidence["aws"]["detected"] is True
-    assert evidence["aws"]["declared"] is True
-    assert evidence["aws"]["demonstrated"] is True
+    assert evidence["aws"]["sources"] == {
+        "skills",
+        "experience",
+    }
 
 
 def test_unstructured_resume_preserves_detected_skills():
@@ -85,12 +91,10 @@ Built backend systems using Python and Docker.
     assert "docker" in evidence
 
     assert evidence["python"]["detected"] is True
-    assert evidence["python"]["declared"] is False
-    assert evidence["python"]["demonstrated"] is False
+    assert evidence["python"]["sources"] == set()
 
     assert evidence["docker"]["detected"] is True
-    assert evidence["docker"]["declared"] is False
-    assert evidence["docker"]["demonstrated"] is False
+    assert evidence["docker"]["sources"] == set()
 
 
 def test_skill_can_have_project_evidence():
@@ -105,11 +109,14 @@ Built using Python and Docker.
 
     evidence = analyze_skill_evidence(resume)
 
-    assert "projects" in evidence["python"]["sources"]
-    assert "projects" in evidence["docker"]["sources"]
+    assert evidence["python"]["sources"] == {
+        "skills",
+        "projects",
+    }
 
-    assert evidence["python"]["declared"] is True
-    assert evidence["docker"]["declared"] is False
+    assert evidence["docker"]["sources"] == {
+        "projects",
+    }
 
 
 def test_skill_can_have_multiple_evidence_sources():
@@ -147,33 +154,28 @@ Deployed using Docker and Kubernetes.
 
     evidence = analyze_skill_evidence(resume)
 
+    assert evidence["docker"]["detected"] is True
     assert evidence["docker"]["sources"] == {
-        "projects"
+        "projects",
     }
 
-    assert evidence["docker"]["detected"] is True
-    assert evidence["docker"]["declared"] is False
-    assert evidence["docker"]["demonstrated"] is False
 
-
-def test_source_based_evidence_preserves_legacy_flags():
+def test_skill_evidence_uses_source_based_contract():
     resume = """
 SKILLS
-AWS
+Python
 
 WORK EXPERIENCE
-Cloud Engineer
-Deployed systems using AWS.
+Software Engineer
+Used Python.
 """
 
     evidence = analyze_skill_evidence(resume)
 
-    assert evidence["aws"]["sources"] == {
-        "skills",
-        "experience"
-    }
+    python_evidence = evidence["python"]
 
-    assert evidence["aws"]["declared"] is True
-    assert evidence["aws"]["demonstrated"] is True
+    assert "detected" in python_evidence
+    assert "sources" in python_evidence
 
-
+    assert "declared" not in python_evidence
+    assert "demonstrated" not in python_evidence
