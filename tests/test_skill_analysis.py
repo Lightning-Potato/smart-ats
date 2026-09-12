@@ -430,3 +430,49 @@ Experienced with Python, Docker and PostgreSQL.
 
     assert result["requirement_fallback_used"] is True
     assert result["skill_match_score"] == 75.0
+
+
+def test_skill_score_is_none_when_no_required_skills_exist():
+    job_description = """
+PREFERRED SKILLS
+AWS
+Docker
+"""
+
+    resume_text = """
+SKILLS
+AWS
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["required_skills"] == []
+    assert set(result["preferred_skills"]) == {
+        "aws",
+        "docker"
+    }
+
+    assert result["skill_match_score"] is None
+
+
+def test_skill_score_is_zero_when_required_skills_are_missing():
+    job_description = """
+REQUIRED SKILLS
+Python
+Docker
+"""
+
+    resume_text = """
+SKILLS
+Java
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["skill_match_score"] == 0.0

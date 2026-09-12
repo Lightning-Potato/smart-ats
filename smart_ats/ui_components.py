@@ -32,6 +32,20 @@ def display_skill_evidence(skill_detail):
         )
 
 
+def find_skill_detail(skill_analysis, skill):
+    """
+    Finds evidence details for a matched skill.
+    """
+
+    for detail in skill_analysis[
+        "matched_skill_details"
+    ]:
+        if detail["skill"] == skill:
+            return detail
+
+    return None
+
+
 def display_analysis_dashboard(
     analysis,
     skill_analysis,
@@ -72,10 +86,16 @@ def display_analysis_dashboard(
     col1, col2 = st.columns(2)
 
     with col1:
-        st.metric(
-            label="Skill Match Score",
-            value=f"{skill_score}%"
-        )
+        if skill_score is None:
+            st.metric(
+                label="Skill Match Score",
+                value="N/A"
+            )
+        else:
+            st.metric(
+                label="Skill Match Score",
+                value=f"{skill_score}%"
+            )
 
     with col2:
         if experience_score is None:
@@ -89,7 +109,6 @@ def display_analysis_dashboard(
                 value=f"{experience_score}%"
             )
 
-    st.progress(skill_score / 100)
 
     # -------------------------
     # Skills Analysis
@@ -97,34 +116,105 @@ def display_analysis_dashboard(
 
     st.subheader("Skills Analysis")
 
-    col1, col2 = st.columns(2)
+    if skill_analysis["requirement_fallback_used"]:
+        st.caption(
+            "Skill requirements were inferred from an "
+            "unstructured job description."
+        )
 
-    with col1:
-        st.markdown("#### Matched Skills")
+    # -------------------------
+    # Required Skills
+    # -------------------------
 
-        matched_details = skill_analysis[
-            "matched_skill_details"
-        ]
+    st.markdown("### Required Skills")
 
-        if not matched_details:
-            st.write("No matched skills detected.")
-        else:
-            for skill_detail in matched_details:
-                display_skill_evidence(skill_detail)
+    required_skills = skill_analysis[
+        "required_skills"
+    ]
 
-    with col2:
-        st.markdown("#### Missing Skills")
+    matched_required = set(
+        skill_analysis["matched_required_skills"]
+    )
 
-        missing_skills = skill_analysis[
-            "missing_skills"
-        ]
+    missing_required = set(
+        skill_analysis["missing_required_skills"]
+    )
 
-        if not missing_skills:
-            st.write("No missing required skills detected.")
-        else:
-            for skill in missing_skills:
-                display_name = get_skill_display_name(skill)
-                st.write(f"✗ {display_name}")
+    if not required_skills:
+        st.info(
+            "No explicit required technical skills "
+            "were identified."
+        )
+    else:
+        for skill in required_skills:
+            if skill in matched_required:
+                detail = find_skill_detail(
+                    skill_analysis,
+                    skill
+                )
+
+                if detail:
+                    display_skill_evidence(detail)
+
+            elif skill in missing_required:
+                display_name = get_skill_display_name(
+                    skill
+                )
+
+                st.markdown(
+                    f"**✗ {display_name}**"
+                )
+
+                st.caption(
+                    "Required skill not detected in resume"
+                )
+
+    # -------------------------
+    # Preferred Skills
+    # -------------------------
+
+    st.markdown("### Preferred Skills")
+
+    preferred_skills = skill_analysis[
+        "preferred_skills"
+    ]
+
+    matched_preferred = set(
+        skill_analysis["matched_preferred_skills"]
+    )
+
+    missing_preferred = set(
+        skill_analysis["missing_preferred_skills"]
+    )
+
+    if not preferred_skills:
+        st.write(
+            "No explicit preferred technical skills "
+            "were identified."
+        )
+    else:
+        for skill in preferred_skills:
+            if skill in matched_preferred:
+                detail = find_skill_detail(
+                    skill_analysis,
+                    skill
+                )
+
+                if detail:
+                    display_skill_evidence(detail)
+
+            elif skill in missing_preferred:
+                display_name = get_skill_display_name(
+                    skill
+                )
+
+                st.markdown(
+                    f"**○ {display_name}**"
+                )
+
+                st.caption(
+                    "Preferred skill not detected in resume"
+                )
 
     # -------------------------
     # Experience Analysis
