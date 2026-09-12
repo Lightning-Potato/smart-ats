@@ -101,3 +101,118 @@ def test_analyze_skill_match_with_aliases():
     assert result["missing_skills"] == []
 
     assert result["skill_match_score"] == 100.0
+
+
+def test_matched_skill_details_include_evidence():
+    job_description = """
+Required skills:
+Python, AWS, PostgreSQL
+"""
+
+    resume_text = """
+SKILLS
+Python
+AWS
+
+WORK EXPERIENCE
+Software Engineer
+Built backend services using Python and PostgreSQL.
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    details = {
+        item["skill"]: item
+        for item in result["matched_skill_details"]
+    }
+
+    assert details["python"]["declared"] is True
+    assert details["python"]["demonstrated"] is True
+
+    assert details["aws"]["declared"] is True
+    assert details["aws"]["demonstrated"] is False
+
+    assert details["postgresql"]["declared"] is False
+    assert details["postgresql"]["demonstrated"] is True
+
+
+def test_matched_skill_details_preserve_alias_evidence():
+    job_description = """
+Experience with Amazon Web Services is required.
+"""
+
+    resume_text = """
+TECHNICAL SKILLS
+AWS
+
+PROFESSIONAL EXPERIENCE
+Deployed production services using Amazon Web Services.
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    details = {
+        item["skill"]: item
+        for item in result["matched_skill_details"]
+    }
+
+    assert "aws" in details
+    assert details["aws"]["declared"] is True
+    assert details["aws"]["demonstrated"] is True
+
+
+def test_matched_skill_details_handle_unstructured_resume():
+    job_description = """
+Python and Docker experience required.
+"""
+
+    resume_text = """
+Software Engineer
+
+Built backend systems using Python and Docker.
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    details = {
+        item["skill"]: item
+        for item in result["matched_skill_details"]
+    }
+
+    assert details["python"]["detected"] is True
+    assert details["python"]["declared"] is False
+    assert details["python"]["demonstrated"] is False
+
+    assert details["docker"]["detected"] is True
+
+
+def test_skill_evidence_does_not_change_match_score():
+    job_description = """
+Required skills:
+Python, AWS, Docker, PostgreSQL
+"""
+
+    resume_text = """
+SKILLS
+Python
+AWS
+
+WORK EXPERIENCE
+Used Python and PostgreSQL.
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert result["skill_match_score"] == 75.0
