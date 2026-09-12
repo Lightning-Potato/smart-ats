@@ -12,3 +12,15 @@ select = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-ats"
+version = "0.5.0"
+requires-python = ">=3.12"
+
+[tool.setuptools.packages.find]
+include = ["smart_ats*"]
