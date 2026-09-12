@@ -33,6 +33,14 @@ def test_overall_score_without_experience_requirement():
 
     assert score == 75.0
 
+def test_overall_score_without_skill_requirement():
+    score = calculate_overall_ats_score(
+        skill_score=None,
+        experience_score=75
+    )
+
+    assert score == 75.0
+
 def test_overall_score_with_no_available_dimensions():
     score = calculate_overall_ats_score(
         skill_score=None,

@@ -75,10 +75,13 @@ def analyze_skill_match(job_description, resume_text):
         resume_skills
     )
 
-    skill_match_score = calculate_skill_match_score(
-        required_match["matched_skills"],
-        required_skills
-    )
+    if required_skills:
+        skill_match_score = calculate_skill_match_score(
+            required_match["matched_skills"],
+            required_skills
+        )
+    else:
+        skill_match_score = None
 
     job_skills = list(
         dict.fromkeys(
