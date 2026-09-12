@@ -2,6 +2,8 @@
 
 Smart ATS is an AI-powered Applicant Tracking System that analyzes a resume against a job description and provides structured feedback on candidate-job compatibility.
 
+**Live Demo:** https://smart-ats-jia.streamlit.app/
+
 ## Current Features
 
 ### ATS Analysis
@@ -415,12 +417,15 @@ users receive concise error messages without raw internal tracebacks.
 
 ## Deployment
 
-Smart ATS is containerized and validated through automated Docker
-build and runtime health checks.
+Smart ATS is publicly deployed on Streamlit Community Cloud.
 
-Public deployment is planned as part of the v0.5.0 release hardening
-process after the repository completes its public-release security
-review.
+**Live Demo:** https://smart-ats-jia.streamlit.app/
+
+The application is also containerized with Docker and validated through
+automated image build, container startup, and runtime health checks in CI.
+
+Production configuration and API credentials are injected at runtime
+and are not embedded in the repository or Docker image.
 
 ## Known Limitations
 
@@ -437,11 +442,10 @@ review.
 
 ## Development Status
 
-Current release: **v0.4.0**
+Current release: **v0.5.0**
 
-Version **v0.5.0** is currently in release preparation.
-
-The v0.5 development cycle focuses on production engineering,
-including automated code-quality enforcement, application logging,
-graceful failure handling, centralized configuration, Docker
-containerization, runtime health validation, and deployment readiness.
+Version 0.5.0 introduces production-engineering capabilities including
+automated code-quality enforcement, structured application logging,
+graceful AI-service degradation, centralized configuration and startup
+validation, Docker containerization, container health checks, expanded
+CI quality gates, Python package portability, and public cloud deployment.
