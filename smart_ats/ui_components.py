@@ -184,6 +184,14 @@ def display_analysis_dashboard(
     st.divider()
     st.header("AI Insights")
 
+    if analysis is None:
+        st.warning(
+            "AI-generated insights are currently unavailable. "
+            "The deterministic ATS analysis above is still valid."
+        )
+
+        return
+
     st.subheader("Summary")
     st.write(analysis["summary"])
 
@@ -199,5 +207,8 @@ def display_analysis_dashboard(
 
     st.subheader("Recommendations")
 
-    for index, recommendation in enumerate(analysis["recommendations"], start=1):
+    for index, recommendation in enumerate(
+        analysis["recommendations"],
+        start=1,
+    ):
         st.write(f"{index}. {recommendation}")
