@@ -1,15 +1,14 @@
 import streamlit as st
 
-from smart_ats.utility import extract_text_from_pdf
+from smart_ats.analysis_parser import parse_analysis_response
+from smart_ats.experience_analysis import analyze_experience_match
+from smart_ats.findings import build_deterministic_findings
 from smart_ats.llm_client import get_llm_response
 from smart_ats.prompts import build_structured_analysis_prompt
-from smart_ats.analysis_parser import parse_analysis_response
-from smart_ats.ui_components import display_analysis_dashboard
-from smart_ats.skill_analysis import analyze_skill_match
-from smart_ats.experience_analysis import analyze_experience_match
 from smart_ats.scoring import calculate_overall_ats_score
-
-
+from smart_ats.skill_analysis import analyze_skill_match
+from smart_ats.ui_components import display_analysis_dashboard
+from smart_ats.utility import extract_text_from_pdf
 
 
 st.set_page_config(
@@ -63,23 +62,33 @@ if submitted:
                 resume_text
             )
 
+            findings = build_deterministic_findings(
+                skill_analysis,
+                experience_analysis
+            )
+
             overall_ats_score = calculate_overall_ats_score(
                 skill_analysis["skill_match_score"],
                 experience_analysis["experience_match_score"]
             )
 
             with st.spinner(
-                "Our AI is analyzing your inputs... This may take a moment."
+                "Generating grounded AI insights..."
             ):
                 input_prompt = build_structured_analysis_prompt(
                     job_description,
-                    resume_text
+                    resume_text,
+                    findings
                 )
 
-                response = get_llm_response(input_prompt)
+                response = get_llm_response(
+                    input_prompt
+                )
 
             try:
-                analysis = parse_analysis_response(response)
+                analysis = parse_analysis_response(
+                    response
+                )
 
                 display_analysis_dashboard(
                     analysis,
@@ -92,7 +101,9 @@ if submitted:
                 st.error(str(e))
 
         else:
-            st.error("There was an error reading the PDF file.")
+            st.error(
+                "There was an error reading the PDF file."
+            )
 
     else:
         st.warning(

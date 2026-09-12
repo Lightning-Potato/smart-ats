@@ -1,38 +1,80 @@
-def build_structured_analysis_prompt(job_description, resume_text):
+import json
+
+
+
+import json
+
+
+def build_structured_analysis_prompt(
+    job_description,
+    resume_text,
+    findings
+):
     """
-    Builds a prompt that requests structured qualitative
-    ATS insights in JSON format.
+    Builds a grounded prompt that requests structured
+    qualitative ATS insights in JSON format.
     """
+
+    findings_json = json.dumps(
+        findings,
+        indent=2
+    )
 
     return f"""
 You are a highly skilled Applicant Tracking System (ATS) analyst
 with expertise in technical recruitment and Human Resources.
 
-Analyze the resume against the provided job description.
+Your task is to provide qualitative resume feedback using the
+documents and deterministic ATS findings provided below.
+
+The deterministic findings were calculated by the application
+before this AI analysis. Treat them as the authoritative source
+for skill matching and experience-gap information.
 
 Follow these rules:
-1. Carefully review the job description and resume.
 
-2. Provide a concise summary of the candidate's overall alignment
-with the role.
+1. Carefully review the job description, resume, and deterministic
+findings.
 
-3. Identify qualitative strengths demonstrated by the resume that
-are relevant to the job description.
+2. Use the deterministic findings as the primary factual basis for
+claims about matched skills, missing skills, skill evidence, and
+experience gaps.
 
-4. Identify important gaps or weaknesses relevant to the role.
+3. Do not contradict the deterministic findings when describing
+whether a required or preferred skill was detected.
 
-5. Provide actionable recommendations for improving the resume's
+4. Do not invent skills, qualifications, experience, achievements,
+or evidence that are not supported by the provided information.
+
+5. If a skill is listed as missing in the deterministic findings,
+do not claim that the resume demonstrates that skill.
+
+6. If a skill has evidence sources, use those sources when
+describing the strength of the resume evidence.
+
+7. Distinguish required-skill gaps from preferred-skill gaps.
+Missing preferred skills should not be described as equivalent
+to missing required skills.
+
+8. If the experience gap is null, do not claim that the candidate
+fails an explicit years-of-experience requirement.
+
+9. Provide a concise summary of the candidate's alignment with
+the role.
+
+10. Identify qualitative strengths supported by the resume and
+deterministic findings.
+
+11. Identify important gaps relevant to the role.
+
+12. Provide actionable recommendations for improving the resume's
 alignment with the job description.
 
-6. Do not invent skills, qualifications, experience, or achievements.
+13. Return ONLY valid JSON using the exact structure below.
 
-7. Base all conclusions strictly on the provided documents.
+14. Do not include Markdown code fences or any text outside the JSON.
 
-8. Return ONLY valid JSON using the exact structure specified below.
-
-9. Do not include Markdown code fences or any text outside the JSON.
-
-Return the result using exactly this structure:
+Return exactly this structure:
 
 {{
     "summary": "A concise summary of the candidate's overall alignment.",
@@ -46,6 +88,11 @@ Return the result using exactly this structure:
         "recommendation"
     ]
 }}
+
+Deterministic ATS Findings:
+---
+{findings_json}
+---
 
 Job Description:
 ---
