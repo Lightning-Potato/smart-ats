@@ -6,16 +6,22 @@ Smart ATS is an AI-powered Applicant Tracking System that analyzes a resume agai
 
 - Job description input and PDF resume upload through Streamlit
 - PDF text extraction using PyPDF2
-- Deterministic technical skill extraction from raw text
-- Skill normalization and alias resolution
-- Deterministic skill matching and scoring
-- Job experience requirement extraction
+- Deterministic resume section parsing
+- Separation of Skills, Experience, Education, and Projects sections
+- Section-aware professional experience analysis
+- Technical skill extraction with normalization and alias resolution
+- Source-based skill evidence tracking across Skills, Experience, and Projects
+- Required and preferred job skill classification
+- Requirement-aware deterministic skill matching
+- Separate required and preferred skill presentation
+- Deterministic experience requirement extraction
 - Resume employment timeline parsing
 - Overlapping employment period handling
-- Deterministic experience duration and match scoring
+- Deterministic skill and experience scoring
 - Weighted overall ATS scoring with missing-dimension normalization
-- Structured ATS analysis dashboard
-- AI-generated qualitative insights using DeepSeek
+- Structured deterministic findings for LLM grounding
+- Grounded AI-generated summaries, strengths, gaps, and recommendations
+- Structured LLM response validation
 - Mock LLM mode for cost-free local development
 - Automated testing with pytest
 - Continuous integration using GitHub Actions
@@ -49,13 +55,17 @@ smart-ats/
 │   ├── experience_calculator.py
 │   ├── experience_extractor.py
 │   ├── experience_timeline.py
+│   ├── findings.py
+│   ├── job_requirements.py
 │   ├── llm_client.py
 │   ├── matching_engine.py
 │   ├── mock_responses.py
 │   ├── prompts.py
+│   ├── resume_sections.py
 │   ├── scoring.py
 │   ├── skill_aliases.py
 │   ├── skill_analysis.py
+│   ├── skill_evidence.py
 │   ├── skill_extractor.py
 │   ├── skill_metadata.py
 │   ├── skill_vocabulary.py
@@ -123,71 +133,87 @@ python -m streamlit run smart_ats/app.py
 
 ## Architecture
 
-Smart ATS uses a hybrid architecture that separates deterministic
-matching and scoring from LLM-generated qualitative feedback.
+Smart ATS uses a hybrid architecture that combines deterministic
+resume-job matching with grounded LLM-generated qualitative feedback.
 
 ```text
-Job Description + Resume
-          |
-          +----------------------+
-          |                      |
-          v                      v
- Deterministic Engine        LLM Analysis
-          |                      |
-     Skill Matching           Summary
-     Experience Match         Strengths
-     Weighted Scoring         Gaps
-          |                   Recommendations
-          +----------+-----------+
-                     |
-                     v
-                ATS Dashboard
+Job Description                     Resume
+       │                               │
+       ▼                               ▼
+Requirement Parsing             Section Parsing
+       │                               │
+Required / Preferred           Skills / Experience /
+Skills                         Projects / Education
+       │                               │
+       └──────────────┬────────────────┘
+                      ▼
+             Deterministic Engine
+                      │
+             ┌────────┴─────────┐
+             │                  │
+             ▼                  ▼
+       ATS Scoring      Structured Findings
+             │                  │
+             │                  ▼
+             │               LLM
+             │                  │
+             │          Qualitative Insights
+             │                  │
+             └────────┬─────────┘
+                      ▼
+                 ATS Dashboard
 ```
 
-The deterministic engine is responsible for measurable matching and
-scoring, while the LLM is used for qualitative interpretation and
-resume improvement recommendations.
+Deterministic parsing, matching, and scoring are used for measurable
+resume-job compatibility. These results are transformed into structured
+findings that ground the LLM's qualitative analysis.
+
+The LLM does not determine the ATS score. It uses deterministic findings
+together with the original documents to generate summaries, strengths,
+gaps, and recommendations.
 
 ## Scoring Model
 
 The current deterministic ATS score combines two supported dimensions:
 
-- Skill Match: 70%
+- Required Skill Match: 70%
 - Experience Match: 30%
 
-When a dimension is unavailable, its weight is excluded and the
-remaining weights are automatically normalized.
+The skill score is calculated from explicitly classified required
+skills. Preferred skills are analyzed and reported separately and do
+not reduce the required-skill match score.
 
-For example, if a job description does not contain an explicit
-experience requirement, the overall score is based entirely on the
-available skill match score.
+When a scoring dimension is unavailable, it is represented as N/A.
+The overall scoring model excludes unavailable dimensions and
+automatically normalizes the remaining active weights.
+
+For example, if no explicit required technical skills can be scored
+but an experience requirement is available, the overall ATS score is
+calculated entirely from the experience dimension.
 
 The weighting model is project-defined and is not intended to represent
 a proprietary or industry-standard ATS algorithm.
 
 ## Known Limitations
 
-- Skill extraction currently relies on a curated technical vocabulary
-  and known aliases.
-- Unknown or highly specialized skills may not be detected.
-- Experience requirement extraction currently supports a limited set
-  of explicit year-based phrases.
-- Resume employment timeline parsing supports selected month-year date
-  formats.
-- Timeline extraction currently operates on the extracted resume text
-  and does not yet fully distinguish employment history from other
-  dated sections such as education.
-- The current ATS score evaluates skills and explicit experience
-  requirements only; education, certifications, seniority, location,
-  and other hiring factors are not yet included.
-- PDF extraction relies on text-based PDFs and does not currently
-  include OCR for scanned resumes.
+- Resume section detection relies on a curated set of recognized headings.
+- Unstructured resumes may preserve detected skills without reliable evidence-source classification.
+- Skill extraction relies on a curated technical vocabulary and known aliases.
+- Specialized or unknown technologies may not be detected.
+- Required and preferred skill classification works best with explicit job-description section headings.
+- Requirement language embedded in free-form sentences may use fallback classification rather than precise requirement semantics.
+- Experience requirement extraction supports a limited set of explicit year-based phrases.
+- Employment timeline parsing supports selected month-year formats.
+- Section-aware parsing reduces education-date contamination but does not provide full semantic document understanding.
+- Deterministic scoring currently covers required technical skills and explicit experience requirements only.
+- LLM insights are grounded through prompting but remain generative and are not mathematically guaranteed to follow every instruction.
+- Scanned PDF resumes are not currently supported through OCR.
 
 ## Development Status
 
 Current release: **v0.3.0**
 
-Version 0.3.0 introduces deterministic skill and experience matching,
-explainable weighted scoring, automated CI validation, and a hybrid
-architecture that separates deterministic analysis from LLM-generated
-qualitative insights.
+The project is currently being prepared for the **v0.4.0** release,
+which introduces structured resume and job-description understanding,
+source-based skill evidence, requirement-aware matching, and grounded
+AI insights.
