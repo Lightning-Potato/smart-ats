@@ -26,6 +26,7 @@ SECTION_ALIASES = {
     },
 }
 
+
 def build_section_lookup():
     """
     Builds a mapping from section heading aliases
@@ -40,12 +41,14 @@ def build_section_lookup():
 
     return lookup
 
+
 def normalize_heading(line):
     """
     Normalizes a potential resume section heading.
     """
 
     return line.strip().lower().rstrip(":")
+
 
 def parse_resume_sections(resume_text):
     """
@@ -66,21 +69,15 @@ def parse_resume_sections(resume_text):
 
         if normalized_line in section_lookup:
             if current_section is not None:
-                sections[current_section] = "\n".join(
-                    current_lines
-                ).strip()
+                sections[current_section] = "\n".join(current_lines).strip()
 
-            current_section = section_lookup[
-                normalized_line
-            ]
+            current_section = section_lookup[normalized_line]
             current_lines = []
 
         elif current_section is not None:
             current_lines.append(line)
 
     if current_section is not None:
-        sections[current_section] = "\n".join(
-            current_lines
-        ).strip()
+        sections[current_section] = "\n".join(current_lines).strip()
 
     return sections

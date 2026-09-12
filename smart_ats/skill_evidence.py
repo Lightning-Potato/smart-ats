@@ -17,33 +17,16 @@ def analyze_skill_evidence(resume_text):
 
     sections = parse_resume_sections(resume_text)
 
-    declared_skills = set(
-        extract_skills(
-            sections.get("skills", "")
-        )
-    )
+    declared_skills = set(extract_skills(sections.get("skills", "")))
 
-    demonstrated_skills = set(
-        extract_skills(
-            sections.get("experience", "")
-        )
-    )
+    demonstrated_skills = set(extract_skills(sections.get("experience", "")))
 
-    all_resume_skills = set(
-        extract_skills(resume_text)
-    )
+    all_resume_skills = set(extract_skills(resume_text))
 
-    project_skills = set(
-    extract_skills(
-        sections.get("projects", "")
-    )
-)
+    project_skills = set(extract_skills(sections.get("projects", "")))
 
     all_skills = (
-        declared_skills
-        | demonstrated_skills
-        | project_skills
-        | all_resume_skills
+        declared_skills | demonstrated_skills | project_skills | all_resume_skills
     )
 
     evidence = {}

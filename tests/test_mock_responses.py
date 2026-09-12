@@ -15,12 +15,7 @@ def test_mock_response_contains_required_fields():
 
     analysis = parse_analysis_response(response)
 
-    required_fields = [
-        "summary",
-        "strengths",
-        "gaps",
-        "recommendations"
-    ]
+    required_fields = ["summary", "strengths", "gaps", "recommendations"]
 
     for field in required_fields:
         assert field in analysis
@@ -31,11 +26,7 @@ def test_mock_response_excludes_deterministic_fields():
 
     analysis = parse_analysis_response(response)
 
-    deterministic_fields = [
-        "overall_score",
-        "matched_skills",
-        "missing_skills"
-    ]
+    deterministic_fields = ["overall_score", "matched_skills", "missing_skills"]
 
     for field in deterministic_fields:
         assert field not in analysis

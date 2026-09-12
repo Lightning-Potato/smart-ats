@@ -1,6 +1,5 @@
 from smart_ats.skill_extractor import extract_skills
 
-
 REQUIREMENT_SECTION_ALIASES = {
     "required": {
         "required skills",
@@ -63,25 +62,18 @@ def parse_requirement_sections(job_description):
 
         if normalized_line in section_lookup:
             if current_section is not None:
-                sections[current_section] = "\n".join(
-                    current_lines
-                ).strip()
+                sections[current_section] = "\n".join(current_lines).strip()
 
-            current_section = section_lookup[
-                normalized_line
-            ]
+            current_section = section_lookup[normalized_line]
             current_lines = []
 
         elif current_section is not None:
             current_lines.append(line)
 
     if current_section is not None:
-        sections[current_section] = "\n".join(
-            current_lines
-        ).strip()
+        sections[current_section] = "\n".join(current_lines).strip()
 
     return sections
-
 
 
 def extract_skill_requirements(job_description):
@@ -93,17 +85,11 @@ def extract_skill_requirements(job_description):
         dict: Required and preferred canonical skills.
     """
 
-    sections = parse_requirement_sections(
-        job_description
-    )
+    sections = parse_requirement_sections(job_description)
 
-    required_skills = extract_skills(
-        sections.get("required", "")
-    )
+    required_skills = extract_skills(sections.get("required", ""))
 
-    preferred_skills = extract_skills(
-        sections.get("preferred", "")
-    )
+    preferred_skills = extract_skills(sections.get("preferred", ""))
 
     return {
         "required_skills": required_skills,

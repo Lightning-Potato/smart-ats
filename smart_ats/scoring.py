@@ -3,10 +3,8 @@ DEFAULT_SCORE_WEIGHTS = {
     "experience": 0.3,
 }
 
-def calculate_weighted_score(
-    scores,
-    weights
-):
+
+def calculate_weighted_score(scores, weights):
     """
     Calculates a weighted score using only available dimensions.
 
@@ -29,16 +27,10 @@ def calculate_weighted_score(
     if active_weight == 0:
         return None
 
-    return round(
-        weighted_sum / active_weight,
-        2
-    )
+    return round(weighted_sum / active_weight, 2)
 
-def calculate_overall_ats_score(
-    skill_score,
-    experience_score,
-    weights=None
-):
+
+def calculate_overall_ats_score(skill_score, experience_score, weights=None):
     """
     Calculates the overall deterministic ATS score.
     """
@@ -51,7 +43,4 @@ def calculate_overall_ats_score(
         "experience": experience_score,
     }
 
-    return calculate_weighted_score(
-        scores,
-        weights
-    )
+    return calculate_weighted_score(scores, weights)

@@ -8,19 +8,17 @@ def month_index(value):
 
     return value.year * 12 + value.month
 
+
 def resolve_end_date(end_date, current_date):
     """
     Resolves an open-ended employment period.
     """
 
     if end_date is None:
-        return date(
-            current_date.year,
-            current_date.month,
-            1
-        )
+        return date(current_date.year, current_date.month, 1)
 
     return end_date
+
 
 def merge_experience_periods(periods, current_date):
     """
@@ -31,21 +29,11 @@ def merge_experience_periods(periods, current_date):
 
     for period in periods:
         start = period["start"]
-        end = resolve_end_date(
-            period["end"],
-            current_date
-        )
+        end = resolve_end_date(period["end"], current_date)
 
-        resolved_periods.append(
-            {
-                "start": start,
-                "end": end
-            }
-        )
+        resolved_periods.append({"start": start, "end": end})
 
-    resolved_periods.sort(
-        key=lambda period: period["start"]
-    )
+    resolved_periods.sort(key=lambda period: period["start"])
 
     merged = []
 
@@ -56,10 +44,7 @@ def merge_experience_periods(periods, current_date):
 
         last_period = merged[-1]
 
-        if (
-            month_index(period["start"])
-            <= month_index(last_period["end"]) + 1
-        ):
+        if month_index(period["start"]) <= month_index(last_period["end"]) + 1:
             if period["end"] > last_period["end"]:
                 last_period["end"] = period["end"]
 
@@ -68,10 +53,8 @@ def merge_experience_periods(periods, current_date):
 
     return merged
 
-def calculate_total_experience_months(
-    periods,
-    current_date=None
-):
+
+def calculate_total_experience_months(periods, current_date=None):
     """
     Calculates unique months of professional experience.
     """
@@ -82,10 +65,7 @@ def calculate_total_experience_months(
     if current_date is None:
         current_date = date.today()
 
-    merged_periods = merge_experience_periods(
-        periods,
-        current_date
-    )
+    merged_periods = merge_experience_periods(periods, current_date)
 
     total_months = 0
 
@@ -93,23 +73,16 @@ def calculate_total_experience_months(
         start_index = month_index(period["start"])
         end_index = month_index(period["end"])
 
-        total_months += (
-            end_index - start_index + 1
-        )
+        total_months += end_index - start_index + 1
 
     return total_months
 
-def calculate_total_experience_years(
-    periods,
-    current_date=None
-):
+
+def calculate_total_experience_years(periods, current_date=None):
     """
     Calculates unique professional experience in years.
     """
 
-    months = calculate_total_experience_months(
-        periods,
-        current_date
-    )
+    months = calculate_total_experience_months(periods, current_date)
 
     return round(months / 12, 2)

@@ -31,12 +31,10 @@ SKILL_DISPLAY_NAMES = {
     "ci/cd": "CI/CD",
 }
 
+
 def get_skill_display_name(skill):
     """
     Returns the user-facing display name for a canonical skill.
     """
 
-    return SKILL_DISPLAY_NAMES.get(
-        skill,
-        skill
-    )
+    return SKILL_DISPLAY_NAMES.get(skill, skill)

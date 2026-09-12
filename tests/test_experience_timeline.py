@@ -17,6 +17,7 @@ def test_extract_completed_experience_period():
     assert periods[0]["start"] == date(2021, 1, 1)
     assert periods[0]["end"] == date(2022, 12, 1)
 
+
 def test_extract_current_experience_period():
     resume = """
     Software Engineer
@@ -29,6 +30,7 @@ def test_extract_current_experience_period():
     assert periods[0]["start"] == date(2023, 1, 1)
     assert periods[0]["end"] is None
 
+
 def test_extract_full_month_names():
     resume = """
     Backend Developer
@@ -40,6 +42,7 @@ def test_extract_full_month_names():
     assert periods[0]["start"] == date(2021, 1, 1)
     assert periods[0]["end"] == date(2022, 12, 1)
 
+
 def test_extract_period_with_en_dash():
     resume = """
     Backend Developer
@@ -49,6 +52,7 @@ def test_extract_period_with_en_dash():
     periods = extract_experience_periods(resume)
 
     assert len(periods) == 1
+
 
 def test_extract_multiple_experience_periods():
     resume = """
@@ -63,18 +67,6 @@ def test_extract_multiple_experience_periods():
 
     assert len(periods) == 2
 
-def test_resume_without_experience_periods():
-    resume = """
-    Skills
-    Python, Docker, AWS
-
-    Education
-    Bachelor of Computing
-    """
-
-    periods = extract_experience_periods(resume)
-
-    assert periods == []
 
 def test_resume_without_experience_periods():
     resume = """

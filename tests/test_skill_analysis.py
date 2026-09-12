@@ -15,31 +15,17 @@ def test_analyze_skill_match():
     Docker and PostgreSQL.
     """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["requirement_fallback_used"] is True
 
-    assert set(result["required_skills"]) == {
-        "python",
-        "docker",
-        "aws",
-        "postgresql"
-    }
+    assert set(result["required_skills"]) == {"python", "docker", "aws", "postgresql"}
 
     assert result["preferred_skills"] == []
 
-    assert set(result["matched_required_skills"]) == {
-        "python",
-        "docker",
-        "postgresql"
-    }
+    assert set(result["matched_required_skills"]) == {"python", "docker", "postgresql"}
 
-    assert set(result["missing_required_skills"]) == {
-        "aws"
-    }
+    assert set(result["missing_required_skills"]) == {"aws"}
 
     assert result["matched_preferred_skills"] == []
     assert result["missing_preferred_skills"] == []
@@ -56,18 +42,11 @@ def test_analyze_skill_match_with_full_match():
     Experienced with Python, Docker and AWS.
     """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["missing_required_skills"] == []
 
-    assert set(result["matched_required_skills"]) == {
-        "python",
-        "docker",
-        "aws"
-    }
+    assert set(result["matched_required_skills"]) == {"python", "docker", "aws"}
 
     assert result["skill_match_score"] == 100.0
 
@@ -81,18 +60,11 @@ def test_analyze_skill_match_with_no_match():
     Experienced with Java and MySQL.
     """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["matched_required_skills"] == []
 
-    assert set(result["missing_required_skills"]) == {
-        "python",
-        "docker",
-        "aws"
-    }
+    assert set(result["missing_required_skills"]) == {"python", "docker", "aws"}
 
     assert result["skill_match_score"] == 0.0
 
@@ -107,15 +79,9 @@ def test_analyze_skill_match_with_aliases():
     Worked with AWS and Postgres in production systems.
     """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    assert set(result["matched_required_skills"]) == {
-        "aws",
-        "postgresql"
-    }
+    assert set(result["matched_required_skills"]) == {"aws", "postgresql"}
 
     assert result["missing_required_skills"] == []
 
@@ -138,28 +104,15 @@ Software Engineer
 Built backend services using Python and PostgreSQL.
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    details = {
-        item["skill"]: item
-        for item in result["matched_skill_details"]
-    }
+    details = {item["skill"]: item for item in result["matched_skill_details"]}
 
-    assert details["python"]["sources"] == {
-        "skills",
-        "experience"
-    }
+    assert details["python"]["sources"] == {"skills", "experience"}
 
-    assert details["aws"]["sources"] == {
-        "skills"
-    }
+    assert details["aws"]["sources"] == {"skills"}
 
-    assert details["postgresql"]["sources"] == {
-        "experience"
-    }
+    assert details["postgresql"]["sources"] == {"experience"}
 
 
 def test_matched_skill_details_preserve_alias_evidence():
@@ -175,22 +128,13 @@ PROFESSIONAL EXPERIENCE
 Deployed production services using Amazon Web Services.
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    details = {
-        item["skill"]: item
-        for item in result["matched_skill_details"]
-    }
+    details = {item["skill"]: item for item in result["matched_skill_details"]}
 
     assert "aws" in details
 
-    assert details["aws"]["sources"] == {
-        "skills",
-        "experience"
-    }
+    assert details["aws"]["sources"] == {"skills", "experience"}
 
 
 def test_matched_skill_details_handle_unstructured_resume():
@@ -204,15 +148,9 @@ Software Engineer
 Built backend systems using Python and Docker.
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    details = {
-        item["skill"]: item
-        for item in result["matched_skill_details"]
-    }
+    details = {item["skill"]: item for item in result["matched_skill_details"]}
 
     assert details["python"]["detected"] is True
     assert details["python"]["sources"] == set()
@@ -236,10 +174,7 @@ WORK EXPERIENCE
 Used Python and PostgreSQL.
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["skill_match_score"] == 75.0
 
@@ -259,24 +194,13 @@ Smart ATS
 Built using Python and Docker.
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    details = {
-        item["skill"]: item
-        for item in result["matched_skill_details"]
-    }
+    details = {item["skill"]: item for item in result["matched_skill_details"]}
 
-    assert details["python"]["sources"] == {
-        "skills",
-        "projects"
-    }
+    assert details["python"]["sources"] == {"skills", "projects"}
 
-    assert details["docker"]["sources"] == {
-        "projects"
-    }
+    assert details["docker"]["sources"] == {"projects"}
 
 
 def test_matched_skill_details_use_source_based_contract():
@@ -289,10 +213,7 @@ SKILLS
 Python
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     detail = result["matched_skill_details"][0]
 
@@ -312,19 +233,11 @@ AWS
 Kubernetes
 """
 
-    result = resolve_job_skill_requirements(
-        job_description
-    )
+    result = resolve_job_skill_requirements(job_description)
 
-    assert set(result["required_skills"]) == {
-        "python",
-        "docker"
-    }
+    assert set(result["required_skills"]) == {"python", "docker"}
 
-    assert set(result["preferred_skills"]) == {
-        "aws",
-        "kubernetes"
-    }
+    assert set(result["preferred_skills"]) == {"aws", "kubernetes"}
 
     assert result["used_fallback"] is False
 
@@ -335,15 +248,9 @@ We are looking for an engineer with experience
 in Python, Docker and AWS.
 """
 
-    result = resolve_job_skill_requirements(
-        job_description
-    )
+    result = resolve_job_skill_requirements(job_description)
 
-    assert set(result["required_skills"]) == {
-        "python",
-        "docker",
-        "aws"
-    }
+    assert set(result["required_skills"]) == {"python", "docker", "aws"}
 
     assert result["preferred_skills"] == []
     assert result["used_fallback"] is True
@@ -366,26 +273,15 @@ Python
 Docker
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    assert set(result["matched_required_skills"]) == {
-        "python",
-        "docker"
-    }
+    assert set(result["matched_required_skills"]) == {"python", "docker"}
 
     assert result["missing_required_skills"] == []
 
     assert result["matched_preferred_skills"] == []
 
-    assert set(
-        result["missing_preferred_skills"]
-    ) == {
-        "aws",
-        "kubernetes"
-    }
+    assert set(result["missing_preferred_skills"]) == {"aws", "kubernetes"}
 
     assert result["skill_match_score"] == 100.0
 
@@ -406,22 +302,13 @@ Python
 AWS
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
-    assert set(result["matched_required_skills"]) == {
-        "python"
-    }
+    assert set(result["matched_required_skills"]) == {"python"}
 
-    assert set(result["missing_required_skills"]) == {
-        "docker"
-    }
+    assert set(result["missing_required_skills"]) == {"docker"}
 
-    assert set(result["matched_preferred_skills"]) == {
-        "aws"
-    }
+    assert set(result["matched_preferred_skills"]) == {"aws"}
 
     assert result["skill_match_score"] == 50.0
 
@@ -436,10 +323,7 @@ AWS and PostgreSQL.
 Experienced with Python, Docker and PostgreSQL.
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["requirement_fallback_used"] is True
     assert result["skill_match_score"] == 75.0
@@ -457,16 +341,10 @@ SKILLS
 AWS
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["required_skills"] == []
-    assert set(result["preferred_skills"]) == {
-        "aws",
-        "docker"
-    }
+    assert set(result["preferred_skills"]) == {"aws", "docker"}
 
     assert result["skill_match_score"] is None
 
@@ -483,10 +361,7 @@ SKILLS
 Java
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert result["skill_match_score"] == 0.0
 
@@ -505,10 +380,7 @@ SKILLS
 Python
 """
 
-    result = analyze_skill_match(
-        job_description,
-        resume_text
-    )
+    result = analyze_skill_match(job_description, resume_text)
 
     assert "job_skills" not in result
     assert "matched_skills" not in result

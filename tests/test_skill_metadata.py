@@ -7,8 +7,6 @@ def test_get_skill_display_name():
     assert get_skill_display_name("postgresql") == "PostgreSQL"
     assert get_skill_display_name("javascript") == "JavaScript"
 
+
 def test_get_unknown_skill_display_name():
-    assert (
-        get_skill_display_name("unknown skill")
-        == "unknown skill"
-    )
+    assert get_skill_display_name("unknown skill") == "unknown skill"
