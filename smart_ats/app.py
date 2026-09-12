@@ -54,75 +54,122 @@ with st.form("ats_form"):
         type="primary",
     )
 
+
 if submitted:
-    if job_description and resume_file:
-        logger.info("ATS analysis started")
-
-        resume_text = extract_text_from_pdf(resume_file)
-
-        if resume_text:
-            logger.info("Resume text extracted successfully")
-
-            skill_analysis = analyze_skill_match(
-                job_description,
-                resume_text,
-            )
-
-            experience_analysis = analyze_experience_match(
-                job_description,
-                resume_text,
-            )
-
-            logger.info("Deterministic ATS analysis completed")
-
-            findings = build_deterministic_findings(
-                skill_analysis,
-                experience_analysis,
-            )
-
-            logger.debug("Deterministic findings context built")
-
-            overall_ats_score = calculate_overall_ats_score(
-                skill_analysis["skill_match_score"],
-                experience_analysis["experience_match_score"],
-            )
-
-            logger.info("Grounded AI insight generation started")
-
-            with st.spinner("Generating grounded AI insights..."):
-                input_prompt = build_structured_analysis_prompt(
-                    job_description,
-                    resume_text,
-                    findings,
-                )
-
-                response = get_llm_response(input_prompt)
-
-            logger.info("Grounded AI insight generation completed")
-
-            try:
-                analysis = parse_analysis_response(response)
-
-                display_analysis_dashboard(
-                    analysis,
-                    skill_analysis,
-                    experience_analysis,
-                    overall_ats_score,
-                )
-
-                logger.info("ATS analysis completed successfully")
-
-            except ValueError as e:
-                logger.exception("Failed to parse AI analysis response")
-
-                st.error(str(e))
-
-        else:
-            logger.warning("Resume text extraction returned no content")
-
-            st.error("There was an error reading the PDF file.")
-
-    else:
+    if not job_description or not resume_file:
         logger.warning("Analysis submitted with incomplete input")
 
         st.warning("Please provide both a job description and a resume.")
+
+        st.stop()
+
+    logger.info("ATS analysis started")
+
+    # -------------------------
+    # PDF Extraction
+    # -------------------------
+
+    try:
+        resume_text = extract_text_from_pdf(resume_file)
+
+    except Exception:
+        logger.exception("Resume PDF extraction failed")
+
+        st.error(
+            "The resume could not be processed. "
+            "Please verify that the uploaded file "
+            "is a valid PDF."
+        )
+
+        st.stop()
+
+    if not resume_text:
+        logger.warning("Resume text extraction returned no content")
+
+        st.error("No readable text was found in the uploaded resume.")
+
+        st.stop()
+
+    logger.info("Resume text extracted successfully")
+
+    # -------------------------
+    # Deterministic Analysis
+    # -------------------------
+
+    try:
+        skill_analysis = analyze_skill_match(
+            job_description,
+            resume_text,
+        )
+
+        experience_analysis = analyze_experience_match(
+            job_description,
+            resume_text,
+        )
+
+        findings = build_deterministic_findings(
+            skill_analysis,
+            experience_analysis,
+        )
+
+        logger.debug("Deterministic findings context built")
+
+        overall_ats_score = calculate_overall_ats_score(
+            skill_analysis["skill_match_score"],
+            experience_analysis["experience_match_score"],
+        )
+
+    except Exception:
+        logger.exception("Deterministic ATS analysis failed")
+
+        st.error("The ATS analysis could not be completed. Please try again.")
+
+        st.stop()
+
+    logger.info("Deterministic ATS analysis completed")
+
+    # -------------------------
+    # AI Insight Generation
+    # -------------------------
+
+    analysis = None
+
+    try:
+        logger.info("Grounded AI insight generation started")
+
+        with st.spinner("Generating grounded AI insights..."):
+            input_prompt = build_structured_analysis_prompt(
+                job_description,
+                resume_text,
+                findings,
+            )
+
+            response = get_llm_response(input_prompt)
+
+        logger.info("Grounded AI insight generation completed")
+
+    except Exception:
+        logger.exception("Grounded AI insight generation failed")
+
+    else:
+        try:
+            analysis = parse_analysis_response(response)
+
+        except ValueError:
+            logger.exception("Failed to parse AI analysis response")
+
+    # -------------------------
+    # Dashboard
+    # -------------------------
+
+    display_analysis_dashboard(
+        analysis,
+        skill_analysis,
+        experience_analysis,
+        overall_ats_score,
+    )
+
+    if analysis is None:
+        logger.warning("ATS analysis completed without AI insights")
+    else:
+        logger.info("ATS analysis completed successfully")
