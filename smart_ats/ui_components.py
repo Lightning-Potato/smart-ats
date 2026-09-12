@@ -3,6 +3,30 @@ import streamlit as st
 from smart_ats.skill_metadata import get_skill_display_name
 
 
+def display_skill_evidence(skill_detail):
+    """
+    Displays evidence information for a matched skill.
+    """
+
+    skill_name = get_skill_display_name(
+        skill_detail["skill"]
+    )
+
+    st.markdown(f"**✓ {skill_name}**")
+
+    if skill_detail["declared"]:
+        st.caption("✓ Declared in Skills section")
+    else:
+        st.caption("○ Not listed in a recognized Skills section")
+
+    if skill_detail["demonstrated"]:
+        st.caption("✓ Demonstrated in Experience section")
+    else:
+        st.caption(
+            "○ No experience-section evidence detected"
+        )
+
+
 def display_analysis_dashboard(
     analysis,
     skill_analysis,
@@ -73,16 +97,29 @@ def display_analysis_dashboard(
     with col1:
         st.markdown("#### Matched Skills")
 
-        for skill in skill_analysis["matched_skills"]:
-            display_name = get_skill_display_name(skill)
-            st.write(f"✓ {display_name}")
+        matched_details = skill_analysis[
+            "matched_skill_details"
+        ]
+
+        if not matched_details:
+            st.write("No matched skills detected.")
+        else:
+            for skill_detail in matched_details:
+                display_skill_evidence(skill_detail)
 
     with col2:
         st.markdown("#### Missing Skills")
 
-        for skill in skill_analysis["missing_skills"]:
-            display_name = get_skill_display_name(skill)
-            st.write(f"✗ {display_name}")
+        missing_skills = skill_analysis[
+            "missing_skills"
+        ]
+
+        if not missing_skills:
+            st.write("No missing required skills detected.")
+        else:
+            for skill in missing_skills:
+                display_name = get_skill_display_name(skill)
+                st.write(f"✗ {display_name}")
 
     # -------------------------
     # Experience Analysis
