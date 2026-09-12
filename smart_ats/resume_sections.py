@@ -17,6 +17,13 @@ SECTION_ALIASES = {
         "core skills",
         "core competencies",
     },
+    "projects": {
+        "projects",
+        "project experience",
+        "personal projects",
+        "academic projects",
+        "selected projects",
+    },
 }
 
 def build_section_lookup():

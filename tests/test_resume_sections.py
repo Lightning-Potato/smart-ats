@@ -97,3 +97,38 @@ Python, Docker, AWS
     sections = parse_resume_sections(resume)
 
     assert sections == {}
+
+
+def test_parse_projects_section():
+    resume = """
+PERSONAL PROJECTS
+Smart ATS
+Built with Python, Streamlit and Docker.
+
+EDUCATION
+University
+"""
+
+    sections = parse_resume_sections(resume)
+
+    assert "projects" in sections
+    assert "Smart ATS" in sections["projects"]
+    assert "Python" in sections["projects"]
+    assert "Docker" in sections["projects"]
+
+    assert "University" not in sections["projects"]
+
+
+def test_parse_project_section_alias():
+    resume = """
+SELECTED PROJECTS
+Recommendation System
+Built using Python and PyTorch.
+"""
+
+    sections = parse_resume_sections(resume)
+
+    assert "projects" in sections
+    assert "PyTorch" in sections["projects"]
+
+

@@ -216,3 +216,37 @@ Used Python and PostgreSQL.
     )
 
     assert result["skill_match_score"] == 75.0
+
+
+def test_matched_skill_details_include_project_sources():
+    job_description = """
+Required skills:
+Python, Docker
+"""
+
+    resume_text = """
+SKILLS
+Python
+
+PROJECTS
+Smart ATS
+Built using Python and Docker.
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    details = {
+        item["skill"]: item
+        for item in result["matched_skill_details"]
+    }
+
+    assert "projects" in details["python"]["sources"]
+    assert "projects" in details["docker"]["sources"]
+
+    assert "skills" in details["python"]["sources"]
+    assert details["docker"]["sources"] == {
+        "projects"
+    }
