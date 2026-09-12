@@ -3,10 +3,10 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY requirements.txt .
+COPY pyproject.toml .
+COPY smart_ats ./smart_ats
 
 RUN pip install --no-cache-dir -r requirements.txt
-
-COPY smart_ats ./smart_ats
 
 COPY .env.example ./.env.example
 
