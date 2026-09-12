@@ -83,23 +83,10 @@ def analyze_skill_match(job_description, resume_text):
     else:
         skill_match_score = None
 
-    job_skills = list(
-        dict.fromkeys(
-            required_skills + preferred_skills
-        )
-    )
-
-    matched_skills = list(
+    all_matched_skills = list(
         dict.fromkeys(
             required_match["matched_skills"]
             + preferred_match["matched_skills"]
-        )
-    )
-
-    missing_skills = list(
-        dict.fromkeys(
-            required_match["missing_skills"]
-            + preferred_match["missing_skills"]
         )
     )
 
@@ -109,7 +96,7 @@ def analyze_skill_match(job_description, resume_text):
 
     matched_skill_details = []
 
-    for skill in matched_skills:
+    for skill in all_matched_skills:
         evidence = skill_evidence.get(
             skill,
             {
@@ -125,9 +112,6 @@ def analyze_skill_match(job_description, resume_text):
         })
 
     return {
-        "job_skills": job_skills,
-        "resume_skills": resume_skills,
-
         "required_skills": required_skills,
         "preferred_skills": preferred_skills,
 
@@ -142,9 +126,6 @@ def analyze_skill_match(job_description, resume_text):
 
         "missing_preferred_skills":
             preferred_match["missing_skills"],
-
-        "matched_skills": matched_skills,
-        "missing_skills": missing_skills,
 
         "skill_match_score": skill_match_score,
         "matched_skill_details": matched_skill_details,

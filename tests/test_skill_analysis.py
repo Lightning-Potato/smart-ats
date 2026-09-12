@@ -20,16 +20,29 @@ def test_analyze_skill_match():
         resume_text
     )
 
-    assert "python" in result["job_skills"]
-    assert "docker" in result["job_skills"]
-    assert "aws" in result["job_skills"]
-    assert "postgresql" in result["job_skills"]
+    assert result["requirement_fallback_used"] is True
 
-    assert "python" in result["matched_skills"]
-    assert "docker" in result["matched_skills"]
-    assert "postgresql" in result["matched_skills"]
+    assert set(result["required_skills"]) == {
+        "python",
+        "docker",
+        "aws",
+        "postgresql"
+    }
 
-    assert "aws" in result["missing_skills"]
+    assert result["preferred_skills"] == []
+
+    assert set(result["matched_required_skills"]) == {
+        "python",
+        "docker",
+        "postgresql"
+    }
+
+    assert set(result["missing_required_skills"]) == {
+        "aws"
+    }
+
+    assert result["matched_preferred_skills"] == []
+    assert result["missing_preferred_skills"] == []
 
     assert result["skill_match_score"] == 75.0
 
@@ -48,9 +61,9 @@ def test_analyze_skill_match_with_full_match():
         resume_text
     )
 
-    assert result["missing_skills"] == []
+    assert result["missing_required_skills"] == []
 
-    assert set(result["matched_skills"]) == {
+    assert set(result["matched_required_skills"]) == {
         "python",
         "docker",
         "aws"
@@ -73,9 +86,9 @@ def test_analyze_skill_match_with_no_match():
         resume_text
     )
 
-    assert result["matched_skills"] == []
+    assert result["matched_required_skills"] == []
 
-    assert set(result["missing_skills"]) == {
+    assert set(result["missing_required_skills"]) == {
         "python",
         "docker",
         "aws"
@@ -99,12 +112,12 @@ def test_analyze_skill_match_with_aliases():
         resume_text
     )
 
-    assert set(result["matched_skills"]) == {
+    assert set(result["matched_required_skills"]) == {
         "aws",
         "postgresql"
     }
 
-    assert result["missing_skills"] == []
+    assert result["missing_required_skills"] == []
 
     assert result["skill_match_score"] == 100.0
 
@@ -476,3 +489,28 @@ Java
     )
 
     assert result["skill_match_score"] == 0.0
+
+
+def test_skill_analysis_excludes_legacy_aggregate_fields():
+    job_description = """
+REQUIRED SKILLS
+Python
+
+PREFERRED SKILLS
+AWS
+"""
+
+    resume_text = """
+SKILLS
+Python
+"""
+
+    result = analyze_skill_match(
+        job_description,
+        resume_text
+    )
+
+    assert "job_skills" not in result
+    assert "matched_skills" not in result
+    assert "missing_skills" not in result
+    assert "resume_skills" not in result
