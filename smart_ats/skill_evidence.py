@@ -33,19 +33,38 @@ def analyze_skill_evidence(resume_text):
         extract_skills(resume_text)
     )
 
+    project_skills = set(
+    extract_skills(
+        sections.get("projects", "")
+    )
+)
+
     all_skills = (
         declared_skills
         | demonstrated_skills
+        | project_skills
         | all_resume_skills
     )
 
     evidence = {}
 
     for skill in all_skills:
+        sources = set()
+
+        if skill in declared_skills:
+            sources.add("skills")
+
+        if skill in demonstrated_skills:
+            sources.add("experience")
+
+        if skill in project_skills:
+            sources.add("projects")
+
         evidence[skill] = {
             "detected": True,
-            "declared": skill in declared_skills,
-            "demonstrated": skill in demonstrated_skills,
+            "sources": sources,
+            "declared": "skills" in sources,
+            "demonstrated": "experience" in sources,
         }
 
     return evidence
