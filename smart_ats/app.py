@@ -3,6 +3,7 @@ import logging
 import streamlit as st
 
 from smart_ats.analysis_parser import parse_analysis_response
+from smart_ats.config import ConfigurationError, load_config
 from smart_ats.experience_analysis import analyze_experience_match
 from smart_ats.findings import build_deterministic_findings
 from smart_ats.llm_client import get_llm_response
@@ -13,16 +14,30 @@ from smart_ats.skill_analysis import analyze_skill_match
 from smart_ats.ui_components import display_analysis_dashboard
 from smart_ats.utility import extract_text_from_pdf
 
-configure_logging()
-
-logger = logging.getLogger(__name__)
-
-
 st.set_page_config(
     page_title="Smart ATS",
     page_icon="🤖",
     layout="centered",
 )
+
+
+# -------------------------
+# Application Configuration
+# -------------------------
+
+try:
+    config = load_config()
+
+except ConfigurationError as e:
+    st.error(f"Application configuration error: {e}")
+
+    st.stop()
+
+
+configure_logging(config.log_level)
+
+logger = logging.getLogger(__name__)
+
 
 st.title("Smart Applicant Tracking System 🤖")
 
@@ -144,7 +159,10 @@ if submitted:
                 findings,
             )
 
-            response = get_llm_response(input_prompt)
+            response = get_llm_response(
+                input_prompt,
+                config,
+            )
 
         logger.info("Grounded AI insight generation completed")
 
@@ -171,5 +189,6 @@ if submitted:
 
     if analysis is None:
         logger.warning("ATS analysis completed without AI insights")
+
     else:
         logger.info("ATS analysis completed successfully")
